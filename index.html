@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklist Tracker | Enterprise</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #4f46e5; --primary-hover: #4338ca; --primary-light: #e0e7ff; --primary-glow: rgba(79, 70, 229, 0.25);
+            --sidebar-bg: #0B1120; --sidebar-hover: #1e293b; --sidebar-text: #94a3b8; --sidebar-active: #ffffff;
+            --bg-main: #f8fafc; --surface: #ffffff;
+            --text-main: #0f172a; --text-muted: #64748b;
+            --border: #e2e8f0; --border-focus: #818cf8;
+            --danger: #ef4444; --danger-light: #fee2e2; --success: #10b981; --warning: #f59e0b;
+            --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 24px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            --shadow-float: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); --sidebar-width: 280px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; }
+        h1, h2, h3, .brand { font-family: 'Outfit', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* AUTH SCREEN */
+        #view-login { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--surface); display: flex; z-index: 1000; }
+        .auth-left { flex: 1; background: linear-gradient(135deg, #0B1120 0%, #1e1b4b 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem; color: white; position: relative; overflow: hidden; }
+        .auth-left::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 50%); }
+        .auth-left h1 { font-size: 3.5rem; font-weight: 800; margin-bottom: 1rem; z-index: 1; letter-spacing: -0.03em; line-height: 1.1; text-align: center;}
+        .auth-left p { font-size: 1.2rem; color: #94a3b8; z-index: 1; max-width: 80%; text-align: center; }
+        .auth-right { flex: 1; display: flex; align-items: center; justify-content: center; background: var(--bg-main); }
+        .auth-card { background: white; width: 100%; max-width: 440px; padding: 3.5rem; border-radius: var(--radius-xl); box-shadow: var(--shadow-float); border: 1px solid rgba(226, 232, 240, 0.8); }
+        .auth-card h2 { font-size: 2rem; color: var(--text-main); margin-bottom: 0.5rem; font-weight: 800; letter-spacing: -0.02em;}
+        .auth-card p { color: var(--text-muted); margin-bottom: 2.5rem; font-size: 1rem; }
+        @media (max-width: 900px) { .auth-left { display: none; } }
+
+        /* SIDEBAR & LAYOUT */
+        .sidebar { width: var(--sidebar-width); background: var(--sidebar-bg); height: 100vh; display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.05); transition: var(--transition); z-index: 50; }
+        .sidebar-brand { height: 80px; display: flex; align-items: center; padding: 0 2rem; font-size: 1.5rem; font-weight: 800; color: white; border-bottom: 1px solid rgba(255,255,255,0.05); letter-spacing: -0.02em; }
+        .sidebar-brand span { color: var(--primary); }
+        .nav-menu { padding: 2rem 1rem; flex: 1; display: flex; flex-direction: column; gap: 0.5rem; overflow-y: auto;}
+        .nav-item { display: flex; align-items: center; gap: 14px; padding: 1rem 1.25rem; color: var(--sidebar-text); text-decoration: none; border-radius: var(--radius-md); font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: var(--transition); background: transparent; border: none; width: 100%; text-align: left; position: relative; overflow: hidden; }
+        .nav-item:hover { background: rgba(255,255,255,0.03); color: var(--sidebar-active); }
+        .nav-item.active { background: rgba(79, 70, 229, 0.15); color: var(--primary-light); }
+        .nav-item.active::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 4px; background: var(--primary); border-radius: 0 4px 4px 0; }
+        .sidebar-footer { padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05); }
+        .user-profile { display: flex; align-items: center; gap: 12px; color: white; margin-bottom: 1.25rem; }
+        .avatar { width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
+        
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; position: relative; padding-bottom: 50px;} /* padding for footer */
+        .topbar { height: 80px; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 2.5rem; z-index: 10; }
+        .topbar-title { font-weight: 600; color: var(--text-muted); font-size: 0.95rem; }
+        .content-area { flex: 1; overflow-y: auto; padding: 2.5rem; scroll-behavior: smooth; position: relative; }
+        .container { max-width: 1000px; margin: 0 auto; width: 100%; padding-bottom: 3rem;}
+        .view { display: none; opacity: 0; transform: translateY(15px); }
+        .view.active { display: block; opacity: 1; transform: translateY(0); transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        /* BUTTONS & INPUTS */
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0.8rem 1.75rem; border-radius: var(--radius-md); font-weight: 600; font-size: 0.95rem; border: none; cursor: pointer; transition: var(--transition); font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: 0.02em; }
+        .btn-primary { background: var(--primary); color: white; box-shadow: var(--shadow-sm); }
+        .btn-primary:hover { background: var(--primary-hover); box-shadow: 0 6px 15px var(--primary-glow); transform: translateY(-1px); }
+        .btn-outline { background: white; border: 1px solid var(--border); color: var(--text-main); box-shadow: var(--shadow-sm);}
+        .btn-outline:hover { background: var(--bg-main); border-color: #cbd5e1; transform: translateY(-1px);}
+        .btn-danger { background: var(--surface); color: var(--danger); border: 1px solid #fca5a5; }
+        .btn-danger:hover { background: var(--danger-light); }
+        .btn-sm { padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: var(--radius-sm);}
+
+        .page-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1rem;}
+        .page-header h1 { font-size: 2.25rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.03em; line-height: 1.2;}
+        .page-header p { color: var(--text-muted); margin-top: 0.5rem; font-size: 1rem; }
+
+        .form-section { background: var(--surface); border-radius: var(--radius-lg); padding: 2.5rem; margin-bottom: 2rem; box-shadow: var(--shadow-card); border: 1px solid rgba(226, 232, 240, 0.8); position: relative; transition: var(--transition); }
+        .form-section:hover { box-shadow: var(--shadow-float); }
+        .form-section h2 { font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 2rem; border-bottom: 1px solid var(--bg-main); padding-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
+        .form-section h2 svg { color: var(--primary); }
+
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.75rem; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.75rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.5rem; position: relative; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-group label { font-size: 0.85rem; font-weight: 700; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.05em; }
+
+        .form-control { width: 100%; padding: 0.85rem 1.25rem; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 0.95rem; color: var(--text-main); background-color: var(--bg-main); transition: var(--transition); font-weight: 500; appearance: none; font-family: inherit; }
+        select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1.25rem center; background-size: 1rem; padding-right: 3rem; }
+        .form-control:hover { border-color: #cbd5e1; }
+        .form-control:focus { outline: none; border-color: var(--border-focus); background-color: white; box-shadow: 0 0 0 4px var(--primary-glow); }
+        .form-control::placeholder { color: #94a3b8; font-weight: 400; }
+        
+        .search-bar { padding: 0.8rem 1rem 0.8rem 2.5rem; border-radius: 99px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Ccircle cx='11' cy='11' r='8' stroke-width='2'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65' stroke-width='2'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: 1rem center; background-size: 1rem; border: 1px solid var(--border); width: 300px; font-size: 0.95rem; font-family: inherit;}
+        .search-bar:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+
+        .radio-group { display: flex; gap: 1rem; margin-top: 0.5rem; }
+        .radio-label { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 0.75rem 1.5rem; border: 1px solid var(--border); border-radius: 99px; background: var(--bg-main); font-weight: 600; transition: var(--transition); font-size: 0.9rem; color: var(--text-muted); }
+        .radio-label:hover { border-color: var(--border-focus); color: var(--text-main);}
+        .radio-label:has(input:checked) { background: var(--primary); border-color: var(--primary); color: white; box-shadow: 0 4px 10px var(--primary-glow);}
+        .radio-label input[type="radio"] { display: none; }
+        
+        .conditional-field { display: none; margin-top: 1rem; padding: 1.5rem; background: var(--bg-main); border-radius: var(--radius-md); border: 1px dashed #cbd5e1; border-left: 4px solid var(--primary); animation: slideDown 0.3s ease forwards;}
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .input-with-btn { display: flex; gap: 0.75rem; align-items: stretch;}
+        .input-with-btn .form-control { flex: 1; }
+        .tags-container { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+        .tag-pill { background: var(--surface); color: var(--text-main); padding: 0.4rem 0.5rem 0.4rem 1rem; border-radius: 99px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+        .tag-pill button { background: var(--bg-main); border: none; color: var(--text-muted); cursor: pointer; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: var(--transition); }
+        .tag-pill button:hover { background: var(--danger); color: white; }
+
+        .friendly-adder { background: #f8fafc; padding: 1.5rem; border-radius: var(--radius-md); border: 1px dashed #cbd5e1; text-align: center; margin-top: 1rem;}
+        .friendly-inputs { display: flex; gap: 1rem; justify-content: center; align-items: flex-end; flex-wrap: wrap;}
+
+        /* TABLES */
+        .data-table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--surface); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-card); border: 1px solid var(--border); }
+        .data-table th, .data-table td { padding: 1.25rem 1.5rem; text-align: left; border-bottom: 1px solid var(--border); vertical-align: middle;}
+        .data-table th { background: var(--bg-main); font-weight: 700; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #cbd5e1;}
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover td { background: #f8fafc; }
+        .empty-state { text-align: center; padding: 5rem 2rem; background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); border: 1px dashed #cbd5e1;}
+        .empty-state svg { margin-bottom: 1rem; color: #cbd5e1; }
+
+        .admin-action-menu { position: relative; display: inline-block; }
+        .admin-action-btn { background: transparent; border: 1px solid var(--border); padding: 6px 12px; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600; font-size: 0.8rem; color: var(--text-main); }
+        .admin-action-btn:hover { background: var(--bg-main); }
+        
+        /* DETAIL VIEW */
+        .detail-content { background: var(--surface); padding: 4rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-float); border: 1px solid var(--border);}
+        .detail-group { margin-bottom: 3rem; }
+        .detail-group h3 { font-size: 1.15rem; color: var(--primary); border-bottom: 2px solid var(--bg-main); padding-bottom: 0.75rem; margin-bottom: 1.5rem; font-weight: 700;}
+        .detail-row { display: flex; padding: 0.75rem 0; border-bottom: 1px solid #f1f5f9; align-items: flex-start;}
+        .detail-label { width: 35%; font-weight: 600; color: var(--text-muted); font-size: 0.9rem;}
+        .detail-val { width: 65%; color: var(--text-main); font-size: 0.95rem; font-weight: 600;}
+
+        /* FOOTER */
+        .footer { position: fixed; bottom: 0; left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); border-top: 1px solid var(--border); padding: 12px 0; text-align: center; color: var(--text-muted); font-size: 0.8rem; font-weight: 600; z-index: 100; transition: var(--transition);}
+
+        /* UTILS */
+        .toast { visibility: hidden; min-width: 300px; background: #0f172a; color: #fff; text-align: center; border-radius: var(--radius-md); padding: 1rem 1.5rem; position: fixed; z-index: 2000; left: 50%; bottom: 80px; transform: translateX(-50%) translateY(20px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); font-weight: 600; font-size: 0.95rem; opacity: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .toast.show { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
+        .error-msg { color: var(--danger); font-size: 0.85rem; margin-top: 0.5rem; display: none; font-weight: 600; background: var(--danger-light); padding: 12px; border-radius: var(--radius-sm); border: 1px solid #fca5a5;}
+        .loader { border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid white; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: none; margin: 0 auto; }
+        .loader.dark { border-color: #e2e8f0; border-top-color: var(--primary); width: 40px; height: 40px; margin: 4rem auto;}
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .badge { padding: 4px 10px; border-radius: 99px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;}
+        .badge-master { background: #fef08a; color: #854d0e; }
+        .badge-user { background: #e0e7ff; color: #4338ca; }
+        .badge-edit { background: #dcfce7; color: #065f46; margin-left: 6px;}
+    </style>
+</head>
+<body>
+
+    <div id="view-login">
+        <div class="auth-left">
+            <h1>Onboard<br>With Clarity.</h1>
+            <p>The enterprise-grade platform for capturing client requirements, technical specifications, and deployment blueprints.</p>
+        </div>
+        <div class="auth-right">
+            <div class="auth-card">
+                <h2>Welcome Back</h2>
+                <p>Sign in to your dashboard</p>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="loginEmail" class="form-control" placeholder="name@company.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required>
+                    </div>
+                    <div id="loginError" class="error-msg">Invalid credentials.</div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem; height: 48px;" id="loginBtn">
+                        <span>Sign In to Dashboard</span>
+                        <div class="loader" id="loginLoader"></div>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div style="display: none; width: 100%;" id="appWrapper">
+        
+        <nav class="sidebar">
+            <div class="sidebar-brand">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 10px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                Checklist<span>Tracker</span>
+            </div>
+            <div class="nav-menu">
+                <button class="nav-item active" id="nav-landing" onclick="window.navigate('view-landing')">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Dashboard
+                </button>
+                <button class="nav-item" id="nav-form" onclick="window.navigate('view-form')">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg> Create New Checklist
+                </button>
+                <button class="nav-item" id="nav-list" onclick="window.navigate('view-list')">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> Checklists
+                </button>
+                <button class="nav-item" id="nav-admin" onclick="window.navigate('view-admin')" style="display:none; color: #cbd5e1;">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> Team Access
+                </button>
+                <button class="nav-item" id="nav-logs" onclick="window.navigate('view-logs')" style="display:none; color: #94a3b8;">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg> System Logs
+                </button>
+            </div>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="avatar" id="userInitial">U</div>
+                    <div style="overflow: hidden;">
+                        <div style="font-size: 0.9rem; font-weight: 600; white-space: nowrap; text-overflow: ellipsis;" id="userNameDisplay">User Name</div>
+                        <div style="font-size: 0.75rem; color: #94a3b8;" id="userRoleDisplay">Role</div>
+                    </div>
+                </div>
+                <button class="btn btn-outline btn-sm" style="width: 100%; background: rgba(255,255,255,0.05); color: #f87171; border-color: transparent;" onclick="window.handleLogout()">Sign Out</button>
+            </div>
+        </nav>
+
+        <main class="main-wrapper">
+            <header class="topbar">
+                <div class="topbar-title" id="breadcrumb">Dashboard / Overview</div>
+            </header>
+
+            <div class="content-area">
+                <div class="container">
+
+                    <div id="view-landing" class="view active">
+                        <div class="page-header" style="flex-direction: column; align-items: flex-start; margin-bottom: 3rem;">
+                            <h1>Platform Overview</h1>
+                            <p>Manage your client onboarding blueprints and technical requirements.</p>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-section" style="cursor: pointer; padding: 3rem; text-align: center;" onclick="window.navigate('view-form')">
+                                <div style="width: 60px; height: 60px; background: var(--primary-light); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                                    <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                </div>
+                                <h2 style="justify-content: center; border: none; padding: 0; margin-bottom: 0.5rem;">Create New Checklist</h2>
+                                <p style="color: var(--text-muted); font-size: 0.95rem;">Start a new comprehensive implementation checklist for an upcoming onboarding.</p>
+                            </div>
+                            <div class="form-section" style="cursor: pointer; padding: 3rem; text-align: center;" onclick="window.navigate('view-list')">
+                                <div style="width: 60px; height: 60px; background: #e2e8f0; color: #475569; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                                    <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                                </div>
+                                <h2 style="justify-content: center; border: none; padding: 0; margin-bottom: 0.5rem;">View Checklists</h2>
+                                <p style="color: var(--text-muted); font-size: 0.95rem;">Access previously saved records, edit your setups, and export to PDF or DOCX.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="view-admin" class="view">
+                        <div class="page-header">
+                            <div>
+                                <h1>Team Access Control</h1>
+                                <p>Manage system users, passwords, and global privileges.</p>
+                            </div>
+                        </div>
+                        <div class="form-section">
+                            <h2>Add Team Member</h2>
+                            <form id="createUserForm">
+                                <div class="grid-3" style="align-items: end;">
+                                    <div class="form-group"><label>Full Name</label><input type="text" id="newUserName" class="form-control" required></div>
+                                    <div class="form-group"><label>Email Address</label><input type="email" id="newUserEmail" class="form-control" required></div>
+                                    <div class="form-group"><label>Password</label><input type="text" id="newUserPass" class="form-control" required></div>
+                                </div>
+                                <div style="margin-top: 1.5rem; text-align: right;"><button type="submit" class="btn btn-primary">Create User</button></div>
+                            </form>
+                        </div>
+                        <div class="form-section">
+                            <h2>Active Team Members</h2>
+                            <table class="data-table">
+                                <thead><tr><th>Name</th><th>Email</th><th>Role / Privileges</th><th style="width: 250px;">Actions</th></tr></thead>
+                                <tbody id="usersTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="view-logs" class="view">
+                        <div class="page-header">
+                            <div>
+                                <h1>System Audit Logs</h1>
+                                <p>View real-time user activity across the platform.</p>
+                            </div>
+                        </div>
+                        <div class="form-section" style="padding:0; border:none; box-shadow:none; background:transparent;">
+                            <table class="data-table">
+                                <thead><tr><th>Time</th><th>User</th><th>Action</th><th>Details</th></tr></thead>
+                                <tbody id="logsTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="view-form" class="view">
+                        <div class="page-header">
+                            <div>
+                                <h1 id="formHeaderTitle">Implementation Setup</h1>
+                                <p>Complete the full checklist parameters below.</p>
+                            </div>
+                            <button class="btn btn-primary" onclick="window.saveForm()">Save Checklist</button>
+                        </div>
+
+                        <form id="kickoffForm" onsubmit="event.preventDefault();">
+                            
+                            <div class="form-section">
+                                <h2><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"></circle><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path></svg> General Details</h2>
+                                <div class="grid-2">
+                                    <div class="form-group"><label>Business Name *</label><input type="text" class="form-control" id="f_companyName" required></div>
+                                    <div class="form-group"><label>Kick-Off Date</label><input type="date" class="form-control" id="f_callDate"></div>
+                                    <div class="form-group">
+                                        <label>Customer Type</label>
+                                        <select class="form-control" id="f_customerType">
+                                            <option value="">Select type...</option>
+                                            <option value="B2C">B2C</option>
+                                            <option value="B2B">B2B</option>
+                                            <option value="DTV">DTV</option>
+                                            <option value="DTB">DTB</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group"><label>Customer Website</label><input type="url" class="form-control" id="f_website"></div>
+                                    <div class="form-group full"><label>DT Instance URL</label><input type="text" class="form-control" id="f_dtUrl" placeholder="e.g. acme.dispatchtrack.com"></div>
+                                </div>
+                                <div class="grid-3" style="margin-top: 1.75rem; padding-top: 1.75rem; border-top: 1px dashed var(--border);">
+                                    <div class="form-group"><label>Sales Hand-off URL</label><input type="url" class="form-control" id="f_salesHandoffUrl" placeholder="Link to CRM/Notes"></div>
+                                    <div class="form-group"><label>Sales Person</label><input type="text" class="form-control" id="f_salesPerson" placeholder="Name"></div>
+                                    <div class="form-group"><label>Solutions Engineer</label><input type="text" class="form-control" id="f_solutionsEngineer" placeholder="Name"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h2><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Locale & Accounts</h2>
+                                
+                                <div class="form-group" style="background: var(--bg-main); padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border);">
+                                    <label>Do you need to track specific Account Names?</label>
+                                    <div class="radio-group">
+                                        <label class="radio-label"><input type="radio" name="needAccounts" value="no" checked onchange="window.toggleAccounts(false)"> No</label>
+                                        <label class="radio-label"><input type="radio" name="needAccounts" value="yes" onchange="window.toggleAccounts(true)"> Yes</label>
+                                    </div>
+                                    <div id="accountsWrapper" class="conditional-field">
+                                        <label>Add Account Names</label>
+                                        <div class="input-with-btn">
+                                            <input type="text" class="form-control" id="accountInput" placeholder="Type a name and press Add...">
+                                            <button type="button" class="btn btn-primary" onclick="window.addTag('accountList', 'accountInput', 'formAccounts')">Add</button>
+                                        </div>
+                                        <div id="accountList" class="tags-container"></div>
+                                    </div>
+                                </div>
+
+                                <div class="grid-2" style="margin-top: 2rem;">
+                                    <div class="form-group">
+                                        <label>Time Zone</label>
+                                        <input list="timezones" class="form-control" id="f_timeZone" placeholder="Type or select timezone...">
+                                        <datalist id="timezones">
+                                            <option value="Eastern Time (EST)"></option>
+                                            <option value="Central Time (CST)"></option>
+                                            <option value="Mountain Time (MST)"></option>
+                                            <option value="Pacific Time (PST)"></option>
+                                        </datalist>
+                                    </div>
+                                </div>
+
+                                <div style="margin-top: 2rem;">
+                                    <label style="margin-bottom: 0.75rem; display: block; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Physical Address</label>
+                                    <div class="grid-2">
+                                        <div class="form-group full"><input type="text" class="form-control" id="f_addr1" placeholder="Address Line 1"></div>
+                                        <div class="form-group full"><input type="text" class="form-control" id="f_addr2" placeholder="Address Line 2 (Suite, Floor, etc)"></div>
+                                        <div class="form-group"><input type="text" class="form-control" id="f_city" placeholder="City"></div>
+                                        <div class="form-group"><input type="text" class="form-control" id="f_state" placeholder="State / Province"></div>
+                                        <div class="form-group"><input type="text" class="form-control" id="f_zip" placeholder="ZIP / Postal Code"></div>
+                                        <div class="form-group"><input type="text" class="form-control" id="f_country" placeholder="Country"></div>
+                                    </div>
+                                </div>
+                                <div class="grid-2" style="margin-top: 2rem;">
+                                    <div class="form-group"><label>Main Phone</label><input type="tel" class="form-control" id="f_phone"></div>
+                                    <div class="form-group"><label>Call Back Number</label><input type="tel" class="form-control" id="f_callback"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h2><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon></svg> Fleet & Operations</h2>
+                                
+                                <div class="form-group full" style="margin-bottom: 2rem;">
+                                    <label>Service Types Offered</label>
+                                    <div class="input-with-btn">
+                                        <input type="text" class="form-control" id="serviceInput" placeholder="e.g. White Glove, Threshold">
+                                        <button type="button" class="btn btn-primary" onclick="window.addTag('serviceList', 'serviceInput', 'formServices')">Add</button>
+                                    </div>
+                                    <div id="serviceList" class="tags-container"></div>
+                                </div>
+
+                                <div class="grid-3">
+                                    <div class="form-group"><label>Number of Trucks</label><input type="number" class="form-control" id="f_trucks"></div>
+                                    <div class="form-group"><label>Run Time / Truck</label><input type="text" class="form-control" id="f_runtime" placeholder="e.g. 9 hours"></div>
+                                    <div class="form-group"><label>Distribution Centers Count</label><input type="number" class="form-control" id="f_dcCount"></div>
+                                </div>
+
+                                <div class="grid-2" style="margin-top: 2rem;">
+                                    <div class="form-group"><label>Expected Go-Live</label><input type="date" class="form-control" id="f_goLive"></div>
+                                    <div class="form-group">
+                                        <label>Mobile Login Style</label>
+                                        <select class="form-control" id="f_loginType">
+                                            <option value="">Select style...</option>
+                                            <option value="Service Unit based">Service Unit based</option>
+                                            <option value="Truck based">Truck based</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Used Routing Software?</label>
+                                        <select class="form-control" id="f_hasRouting" onchange="window.toggleField('f_hasRouting', 'cond_routing', 'Yes')">
+                                            <option value="">Select...</option><option value="Yes">Yes</option><option value="No">No</option>
+                                        </select>
+                                        <div id="cond_routing" class="conditional-field"><label>Which software?</label><input type="text" class="form-control" id="f_routingProvider"></div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Had any Telematics Devices?</label>
+                                        <select class="form-control" id="f_hasTelematics" onchange="window.toggleField('f_hasTelematics', 'cond_telematics', 'Yes')">
+                                            <option value="">Select...</option><option value="Yes">Yes</option><option value="No">No</option>
+                                        </select>
+                                        <div id="cond_telematics" class="conditional-field"><label>Provider Name?</label><input type="text" class="form-control" id="f_telematicsProvider"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h2><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg> Data Integration</h2>
+                                <div class="grid-2">
+                                    <div class="form-group">
+                                        <label>Import Method</label>
+                                        <select class="form-control" id="f_importMethod" onchange="window.handleImportToggle()">
+                                            <option value="">Select method...</option>
+                                            <option value="CSV">CSV Export</option>
+                                            <option value="API">API Integration</option>
+                                            <option value="FTP">FTP Transfer</option>
+                                            <option value="360">360 Direct</option>
+                                            <option value="Storis">Storis</option>
+                                            <option value="Storis API">Storis API</option>
+                                            <option value="Netsuite">Netsuite</option>
+                                            <option value="EPASS">EPASS</option>
+                                            <option value="GE">GE</option>
+                                        </select>
+                                        <div id="cond_pos" class="conditional-field">
+                                            <label style="margin-bottom: 0.5rem;">Implementation Notes & Custom POS</label>
+                                            <textarea class="form-control" id="f_posSystem" placeholder="Enter POS system details or specific integration notes here..." style="min-height: 100px; resize: vertical;"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="form-group"><label>Sync Frequency</label><input type="text" class="form-control" id="f_importFreq" placeholder="e.g. Daily 5PM"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h2><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg> Optimization Rules</h2>
+                                <div class="grid-2">
+                                    <div class="form-group"><label>Cubes Limit</label><input type="text" class="form-control" id="f_optCubes"></div>
+                                    <div class="form-group"><label>Pieces Limit</label><input type="text" class="form-control" id="f_optPieces"></div>
+                                    <div class="form-group"><label>Weight Limit</label><input type="text" class="form-control" id="f_optWeight"></div>
+                                    <div class="form-group"><label>Categories</label><input type="text" class="form-control" id="f_optCats"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h2><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Add-ons & Features</h2>
+                                <div class="grid-2">
+                                    <div class="form-group">
+                                        <label>Customer Notifications</label>
+                                        <div class="input-with-btn">
+                                            <input type="text" class="form-control" id="notifInput" placeholder="e.g., SMS Arriving Soon">
+                                            <button type="button" class="btn btn-primary" onclick="window.addTag('notifList', 'notifInput', 'formNotifications')">Add</button>
+                                        </div>
+                                        <div id="notifList" class="tags-container"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Required Modules</label>
+                                        <div class="input-with-btn">
+                                            <input type="text" class="form-control" id="featInput" placeholder="e.g., AI Chatbot">
+                                            <button type="button" class="btn btn-primary" onclick="window.addTag('featList', 'featInput', 'formFeatures')">Add</button>
+                                        </div>
+                                        <div id="featList" class="tags-container"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h2><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg> Custom Requirements</h2>
+                                <div id="customFieldsContainer" class="grid-2" style="margin-bottom: 1.5rem;"></div>
+                                
+                                <div class="friendly-adder">
+                                    <p style="font-weight: 700; color: var(--text-main); margin-bottom: 1rem;">Need to track a specific attribute?</p>
+                                    <div class="friendly-inputs">
+                                        <div class="form-group" style="text-align:left;"><label>Question / Label</label><input type="text" class="form-control" id="customLabel" placeholder="e.g. Billing ID"></div>
+                                        <div class="form-group" style="text-align:left;"><label>Data Type</label><select class="form-control" id="customType"><option value="text">Text</option><option value="number">Number</option><option value="date">Date</option></select></div>
+                                        <button type="button" class="btn btn-outline" style="height: 48px;" onclick="window.addCustomField()">Append Field</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: right; margin-top: 2rem;">
+                                <button type="button" class="btn btn-primary" style="padding: 1rem 3rem; font-size: 1.1rem;" onclick="window.saveForm()">Save Checklist</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div id="view-list" class="view">
+                        <div class="page-header">
+                            <div>
+                                <h1>Archived Checklists</h1>
+                                <p>Manage and export your implementation blueprints.</p>
+                            </div>
+                            <div style="display: flex; gap: 1rem; align-items: center;">
+                                <input type="text" id="searchInput" class="search-bar" placeholder="Search client or author..." onkeyup="window.filterChecklists()">
+                                <button class="btn btn-primary" onclick="window.navigate('view-form')">+ New Setup</button>
+                            </div>
+                        </div>
+                        
+                        <div id="listLoader" class="loader dark" style="display: block;"></div>
+                        
+                        <table class="data-table" id="dataTableWrapper" style="display:none;">
+                            <thead>
+                                <tr>
+                                    <th>Client Organization</th>
+                                    <th>Author</th>
+                                    <th>Type</th>
+                                    <th style="width: 200px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="listTableBody"></tbody>
+                        </table>
+                        
+                        <div id="emptyState" class="empty-state" style="display:none;">
+                            <svg width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            <h3 style="font-size: 1.5rem; color: var(--text-main); margin-bottom: 0.5rem;">No Records Found</h3>
+                            <p style="color: var(--text-muted); margin-bottom: 2rem;">Create your first setup or adjust your search.</p>
+                            <button class="btn btn-primary" onclick="window.navigate('view-form')">Start Checklist</button>
+                        </div>
+                    </div>
+
+                    <div id="view-detail" class="view">
+                        <div class="page-header">
+                            <div>
+                                <button class="btn btn-outline btn-sm" style="margin-bottom: 1rem;" onclick="window.navigate('view-list')">← Back to Checklists</button>
+                                <h1 id="d_title">Company Name</h1>
+                            </div>
+                            <div style="display: flex; gap: 1rem;">
+                                <button class="btn btn-outline" onclick="window.exportPDF()">Export PDF</button>
+                                <button class="btn btn-primary" onclick="window.exportDOCX()">Export Word</button>
+                            </div>
+                        </div>
+
+                        <div id="exportContent" class="detail-content"></div>
+                    </div>
+
+                </div>
+            </div>
+            
+            <footer class="footer">
+                Developed By Revanth Reddy Abbati • Kick Off Checklist Tracker © 2026
+            </footer>
+        </main>
+    </div>
+
+    <div id="toast" class="toast">Operation Successful!</div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // =========================================================
+        // YOUR FIREBASE CONFIGURATION
+        // =========================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCTxIX_4kXpS1Iat8NebxhftQVsHZTh4UA",
+            authDomain: "checklist-tracker-47ef8.firebaseapp.com",
+            projectId: "checklist-tracker-47ef8",
+            storageBucket: "checklist-tracker-47ef8.firebasestorage.app",
+            messagingSenderId: "919807689503",
+            appId: "1:919807689503:web:208bb66c7faf1403b3662a",
+            measurementId: "G-5H6FQNES8F"
+        };
+
+        if (firebaseConfig.apiKey === "YOUR_API_KEY") {
+            const errDiv = document.getElementById('loginError');
+            errDiv.innerHTML = "<strong>Setup Incomplete:</strong> Paste your Firebase Config keys at the bottom of the HTML file.";
+            errDiv.style.display = 'block';
+        }
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Global State 
+        window.currentUser = null;
+        window.checklists = [];
+        window.allUsers = [];
+        window.editingRecordId = null;
+        window.accountsNeeded = false;
+        
+        window.formAccounts = [];
+        window.formServices = [];
+        window.formNotifications = [];
+        window.formFeatures = [];
+        window.customFieldsDefinition = [];
+
+        // UI Helpers
+        const toast = document.getElementById("toast");
+        window.showToast = (msg) => { toast.innerText = msg; toast.classList.add("show"); setTimeout(() => toast.classList.remove("show"), 3000); };
+        
+        window.navigate = (viewId) => {
+            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            const navBtn = document.getElementById('nav-' + viewId.split('-')[1]);
+            if(navBtn) navBtn.classList.add('active');
+
+            const titles = { 'view-landing': 'Dashboard / Overview', 'view-form': 'Setup / Implementation Checklist', 'view-list': 'Database / Checklists', 'view-admin': 'System / Team Access', 'view-detail': 'Database / Blueprint Details', 'view-logs': 'System / Audit Logs' };
+            document.getElementById('breadcrumb').innerText = titles[viewId] || '';
+
+            if(viewId === 'view-list') window.loadChecklists();
+            if(viewId === 'view-admin') window.loadUsers();
+            if(viewId === 'view-logs') window.loadLogs();
+            if(viewId === 'view-form' && !window.editingRecordId) window.resetForm();
+        };
+
+        // --- AUDIT LOGGING ---
+        async function logAction(action, details) {
+            if(!window.currentUser) return;
+            try {
+                await addDoc(collection(db, "logs"), {
+                    action: action,
+                    userEmail: window.currentUser.email,
+                    userName: window.currentUser.name,
+                    details: details,
+                    timestamp: Date.now()
+                });
+            } catch(e) { console.error("Logging failed", e); }
+        }
+
+        window.loadLogs = async () => {
+            const tbody = document.getElementById('logsTableBody'); tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Loading logs...</td></tr>';
+            try {
+                const snapshot = await getDocs(collection(db, "logs")); 
+                let logs = [];
+                snapshot.forEach(doc => logs.push(doc.data()));
+                logs.sort((a,b) => b.timestamp - a.timestamp); // Sort descending
+                
+                tbody.innerHTML = '';
+                if(logs.length === 0) tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#94a3b8;">No activity logged yet.</td></tr>';
+                logs.forEach(l => { 
+                    const date = new Date(l.timestamp).toLocaleString();
+                    let actColor = '#475569';
+                    if(l.action === 'LOGIN') actColor = '#10b981';
+                    if(l.action === 'CREATE') actColor = '#4f46e5';
+                    if(l.action === 'UPDATE') actColor = '#f59e0b';
+                    if(l.action === 'DELETE') actColor = '#ef4444';
+
+                    tbody.innerHTML += `<tr>
+                        <td style="font-size:0.85rem; color:#64748b;">${date}</td>
+                        <td style="font-weight:600;">${l.userName}</td>
+                        <td><span class="badge" style="background:transparent; border:1px solid ${actColor}; color:${actColor};">${l.action}</span></td>
+                        <td>${l.details}</td>
+                    </tr>`; 
+                });
+            } catch(e) {}
+        };
+
+        // --- AUTHENTICATION ---
+        async function ensureMasterAdminExists() {
+            try {
+                const snapshot = await getDocs(collection(db, "users"));
+                if (snapshot.empty) {
+                    await addDoc(collection(db, "users"), { name: "Master Admin", email: "revanth.abbati@dispatchtrack.com", password: "Create@32", role: "master", canEditAll: true });
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const errDiv = document.getElementById('loginError'); errDiv.style.display = 'none';
+            document.getElementById('loginBtn').querySelector('span').style.display = 'none'; document.getElementById('loginLoader').style.display = 'block';
+
+            try {
+                await ensureMasterAdminExists();
+                const email = document.getElementById('loginEmail').value.trim();
+                const pass = document.getElementById('loginPassword').value.trim();
+                const q = query(collection(db, "users"), where("email", "==", email), where("password", "==", pass));
+                const snapshot = await getDocs(q);
+                
+                if (!snapshot.empty) {
+                    const userData = snapshot.docs[0].data();
+                    window.currentUser = { id: snapshot.docs[0].id, name: userData.name, email: userData.email, role: userData.role, canEditAll: userData.canEditAll || false };
+                    
+                    document.getElementById('view-login').style.display = 'none'; document.getElementById('appWrapper').style.display = 'flex';
+                    document.getElementById('userNameDisplay').innerText = window.currentUser.name;
+                    document.getElementById('userRoleDisplay').innerText = window.currentUser.role.toUpperCase();
+                    document.getElementById('userInitial').innerText = window.currentUser.name.charAt(0);
+                    
+                    if(window.currentUser.role === 'master') {
+                        document.getElementById('nav-admin').style.display = 'flex';
+                        document.getElementById('nav-logs').style.display = 'flex';
+                    }
+                    logAction('LOGIN', 'User signed into dashboard');
+                    window.navigate('view-landing');
+                } else { errDiv.innerText = "Invalid credentials."; errDiv.style.display = 'block'; }
+            } catch (err) { errDiv.innerText = "Database connection error."; errDiv.style.display = 'block'; console.error(err);}
+            document.getElementById('loginBtn').querySelector('span').style.display = 'block'; document.getElementById('loginLoader').style.display = 'none';
+        });
+
+        window.handleLogout = () => {
+            logAction('LOGOUT', 'User signed out');
+            setTimeout(() => {
+                window.currentUser = null; document.getElementById('appWrapper').style.display = 'none';
+                document.getElementById('view-login').style.display = 'flex'; document.getElementById('loginForm').reset();
+                document.getElementById('nav-admin').style.display = 'none';
+                document.getElementById('nav-logs').style.display = 'none';
+            }, 500);
+        };
+
+        // --- ADMIN MODULE ---
+        document.getElementById('createUserForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                await addDoc(collection(db, "users"), { 
+                    name: document.getElementById('newUserName').value.trim(), 
+                    email: document.getElementById('newUserEmail').value.trim(), 
+                    password: document.getElementById('newUserPass').value.trim(), role: 'user', canEditAll: false
+                });
+                window.showToast("User added successfully!"); document.getElementById('createUserForm').reset(); window.loadUsers();
+            } catch(err) { alert("Error adding user to database."); }
+        });
+
+        window.loadUsers = async () => {
+            const tbody = document.getElementById('usersTableBody'); tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Loading...</td></tr>';
+            try {
+                const snapshot = await getDocs(collection(db, "users")); tbody.innerHTML = '';
+                window.allUsers = [];
+                snapshot.forEach(doc => window.allUsers.push({id: doc.id, ...doc.data()}));
+                
+                window.allUsers.forEach(u => { 
+                    let roleBadge = u.role === 'master' ? '<span class="badge badge-master">MASTER</span>' : '<span class="badge badge-user">USER</span>';
+                    let editBadge = u.canEditAll ? '<span class="badge badge-edit">GLOBAL EDIT</span>' : '';
+                    
+                    let actions = `<button class="admin-action-btn" onclick="window.adminUserAction('${u.id}', 'password')">Password</button>`;
+                    if(u.role !== 'master') {
+                        actions += `<button class="admin-action-btn" style="margin-left:4px;" onclick="window.adminUserAction('${u.id}', 'editPerm')">Toggle Edit</button>`;
+                        actions += `<button class="admin-action-btn" style="margin-left:4px;" onclick="window.adminUserAction('${u.id}', 'promote')">Promote</button>`;
+                        actions += `<button class="admin-action-btn" style="margin-left:4px; color:#ef4444; border-color:#fca5a5;" onclick="window.adminUserAction('${u.id}', 'delete')">Del</button>`;
+                    }
+
+                    tbody.innerHTML += `<tr><td><strong>${u.name}</strong></td><td>${u.email}</td><td>${roleBadge}${editBadge}</td><td>${actions}</td></tr>`; 
+                });
+            } catch(e) {}
+        };
+
+        window.adminUserAction = async (id, actionType) => {
+            const user = window.allUsers.find(u => u.id === id);
+            if(!user) return;
+
+            try {
+                if(actionType === 'password') {
+                    const newPass = prompt(`Enter new password for ${user.name}:`);
+                    if(newPass && newPass.trim().length > 0) {
+                        await updateDoc(doc(db, "users", id), { password: newPass.trim() });
+                        window.showToast("Password updated!");
+                    }
+                } else if(actionType === 'editPerm') {
+                    const newPerm = !user.canEditAll;
+                    if(confirm(`Set Global Edit Access to ${newPerm} for ${user.name}?`)) {
+                        await updateDoc(doc(db, "users", id), { canEditAll: newPerm });
+                        window.showToast("Permissions updated!"); window.loadUsers();
+                    }
+                } else if(actionType === 'promote') {
+                    if(confirm(`Make ${user.name} a Master Admin?`)) {
+                        await updateDoc(doc(db, "users", id), { role: 'master', canEditAll: true });
+                        window.showToast("User promoted!"); window.loadUsers();
+                    }
+                } else if(actionType === 'delete') {
+                    if(confirm(`Permanently delete user ${user.name}?`)) {
+                        await deleteDoc(doc(db, "users", id));
+                        window.showToast("User deleted!"); window.loadUsers();
+                    }
+                }
+            } catch(e) { alert("Action failed."); console.error(e);}
+        };
+
+        // --- FORM DYNAMICS ---
+        window.toggleAccounts = (needed) => {
+            window.accountsNeeded = needed;
+            document.getElementById('accountsWrapper').style.display = needed ? 'block' : 'none';
+            if(!needed) { window.formAccounts = []; window.renderTags('accountList', 'formAccounts'); }
+        };
+
+        window.toggleField = (selectId, targetId, trigger) => {
+            const select = document.getElementById(selectId); const target = document.getElementById(targetId);
+            if(select.value === trigger) target.style.display = 'block'; else { target.style.display = 'none'; target.querySelector('input').value = ''; }
+        };
+
+        window.handleImportToggle = () => {
+            const s = document.getElementById('f_importMethod'); const t = document.getElementById('cond_pos');
+            t.style.display = (s.value && s.value !== "") ? 'block' : 'none';
+        };
+
+        window.addTag = (containerId, inputId, arrayName) => {
+            const input = document.getElementById(inputId); const val = input.value.trim();
+            if(val) { window[arrayName].push(val); input.value = ''; window.renderTags(containerId, arrayName); }
+        };
+        window.removeTag = (containerId, index, arrayName) => { window[arrayName].splice(index, 1); window.renderTags(containerId, arrayName); };
+        window.renderTags = (containerId, arrayName) => {
+            const c = document.getElementById(containerId); c.innerHTML = '';
+            window[arrayName].forEach((item, i) => { c.innerHTML += `<span class="tag-pill">${item} <button type="button" onclick="window.removeTag('${containerId}', ${i}, '${arrayName}')">×</button></span>`; });
+        };
+
+        window.addCustomField = () => {
+            const l = document.getElementById('customLabel').value.trim(); const t = document.getElementById('customType').value;
+            if(!l) return; window.customFieldsDefinition.push({ id: 'cf_' + Date.now(), label: l, type: t, value: '' });
+            window.renderCustomFieldsForm(); document.getElementById('customLabel').value = '';
+        };
+
+        window.renderCustomFieldsForm = () => {
+            const c = document.getElementById('customFieldsContainer'); c.innerHTML = '';
+            window.customFieldsDefinition.forEach(cf => { c.innerHTML += `<div class="form-group"><label>${cf.label}</label><input type="${cf.type}" class="form-control" id="${cf.id}" value="${cf.value}"></div>`; });
+        };
+
+        window.resetForm = () => {
+            window.editingRecordId = null; document.getElementById('formHeaderTitle').innerText = "Implementation Setup";
+            document.getElementById('kickoffForm').reset(); document.querySelectorAll('.conditional-field').forEach(el => el.style.display = 'none');
+            document.querySelector('input[name="needAccounts"][value="no"]').checked = true; window.toggleAccounts(false);
+            window.formAccounts = []; window.formServices = []; window.formNotifications = []; window.formFeatures = []; window.customFieldsDefinition = [];
+            window.renderTags('accountList', 'formAccounts'); window.renderTags('serviceList', 'formServices'); window.renderTags('notifList', 'formNotifications'); window.renderTags('featList', 'formFeatures'); window.renderCustomFieldsForm();
+        };
+
+        window.saveForm = async () => {
+            if(!document.getElementById('f_companyName').value.trim()) { alert("Client Name is required."); return; }
+
+            const companyName = document.getElementById('f_companyName').value;
+
+            const recordData = {
+                authorEmail: window.currentUser.email, authorName: window.currentUser.name, timestamp: Date.now(),
+                companyName: companyName, callDate: document.getElementById('f_callDate').value,
+                customerType: document.getElementById('f_customerType').value, website: document.getElementById('f_website').value, dtUrl: document.getElementById('f_dtUrl').value,
+                salesHandoffUrl: document.getElementById('f_salesHandoffUrl').value, salesPerson: document.getElementById('f_salesPerson').value, solutionsEngineer: document.getElementById('f_solutionsEngineer').value,
+                accountsNeeded: window.accountsNeeded, accounts: [...window.formAccounts], timeZone: document.getElementById('f_timeZone').value,
+                address: { line1: document.getElementById('f_addr1').value, line2: document.getElementById('f_addr2').value, city: document.getElementById('f_city').value, state: document.getElementById('f_state').value, zip: document.getElementById('f_zip').value, country: document.getElementById('f_country').value },
+                phone: document.getElementById('f_phone').value, callback: document.getElementById('f_callback').value,
+                services: [...window.formServices], trucks: document.getElementById('f_trucks').value, runtime: document.getElementById('f_runtime').value, dcCount: document.getElementById('f_dcCount').value,
+                goLive: document.getElementById('f_goLive').value, loginType: document.getElementById('f_loginType').value,
+                hasRouting: document.getElementById('f_hasRouting').value, routingProvider: document.getElementById('f_routingProvider').value, hasTelematics: document.getElementById('f_hasTelematics').value, telematicsProvider: document.getElementById('f_telematicsProvider').value,
+                importMethod: document.getElementById('f_importMethod').value, posSystem: document.getElementById('f_posSystem').value, importFreq: document.getElementById('f_importFreq').value,
+                optCubes: document.getElementById('f_optCubes').value, optPieces: document.getElementById('f_optPieces').value, optWeight: document.getElementById('f_optWeight').value, optCats: document.getElementById('f_optCats').value,
+                notifications: [...window.formNotifications], features: [...window.formFeatures], customFields: []
+            };
+
+            window.customFieldsDefinition.forEach(cf => { recordData.customFields.push({ label: cf.label, type: cf.type, value: document.getElementById(cf.id) ? document.getElementById(cf.id).value : '' }); });
+
+            try {
+                if (window.editingRecordId) {
+                    await updateDoc(doc(db, "checklists", window.editingRecordId), recordData);
+                    logAction('UPDATE', `Updated checklist for ${companyName}`);
+                }
+                else {
+                    await addDoc(collection(db, "checklists"), recordData);
+                    logAction('CREATE', `Created checklist for ${companyName}`);
+                }
+                window.showToast("Checklist Saved Successfully!"); window.editingRecordId = null; window.navigate('view-list');
+            } catch(e) { console.error(e); alert("Error saving."); }
+        };
+
+        // --- LIST & SEARCH OPERATIONS ---
+        window.loadChecklists = async () => {
+            document.getElementById('listLoader').style.display = 'block'; document.getElementById('dataTableWrapper').style.display = 'none'; document.getElementById('emptyState').style.display = 'none';
+            try {
+                const snapshot = await getDocs(collection(db, "checklists")); window.checklists = [];
+                snapshot.forEach(doc => window.checklists.push({ id: doc.id, ...doc.data() })); window.checklists.sort((a,b) => b.timestamp - a.timestamp);
+                
+                document.getElementById('listLoader').style.display = 'none';
+                window.renderChecklistsTable(window.checklists); // Call dedicated render function
+            } catch(e) { document.getElementById('listLoader').style.display = 'none'; }
+        };
+
+        window.filterChecklists = () => {
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = window.checklists.filter(c => 
+                (c.companyName && c.companyName.toLowerCase().includes(term)) ||
+                (c.authorName && c.authorName.toLowerCase().includes(term)) ||
+                (c.customerType && c.customerType.toLowerCase().includes(term))
+            );
+            window.renderChecklistsTable(filtered);
+        };
+
+        window.renderChecklistsTable = (dataArray) => {
+            document.getElementById('dataTableWrapper').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'none';
+            if (dataArray.length === 0) {
+                document.getElementById('emptyState').style.display = 'block';
+            } else {
+                document.getElementById('dataTableWrapper').style.display = 'table'; const tbody = document.getElementById('listTableBody'); tbody.innerHTML = '';
+                dataArray.forEach(item => {
+                    const canEdit = window.currentUser.role === 'master' || window.currentUser.canEditAll || window.currentUser.email === item.authorEmail;
+                    let acts = `<button class="btn btn-outline btn-sm" onclick="window.viewRecord('${item.id}')">View</button>`;
+                    if(canEdit) acts += `<button class="btn btn-outline btn-sm" style="margin-left:8px;" onclick="window.loadEdit('${item.id}')">Edit</button><button class="btn btn-danger btn-sm" style="margin-left:8px;" onclick="window.deleteRecord('${item.id}', '${item.companyName}')">Delete</button>`;
+                    tbody.innerHTML += `<tr><td style="font-weight: 700; color: var(--text-main); font-size:1.05rem;">${item.companyName}</td><td style="color:var(--text-muted)">${item.authorName}</td><td><span class="tag-pill" style="background:#f1f5f9; border:1px solid #cbd5e1; color:#475569;">${item.customerType || 'N/A'}</span></td><td>${acts}</td></tr>`;
+                });
+            }
+        };
+
+        window.deleteRecord = async (id, companyName) => { 
+            if(confirm("Delete this checklist?")) { 
+                await deleteDoc(doc(db, "checklists", id)); 
+                logAction('DELETE', `Deleted checklist for ${companyName}`);
+                window.loadChecklists(); 
+            } 
+        };
+
+        window.loadEdit = (id) => {
+            const r = window.checklists.find(c => c.id === id); if(!r) return; window.editingRecordId = id; document.getElementById('formHeaderTitle').innerText = "Edit Implementation Setup";
+            document.getElementById('f_companyName').value = r.companyName; document.getElementById('f_callDate').value = r.callDate; document.getElementById('f_customerType').value = r.customerType; document.getElementById('f_website').value = r.website; document.getElementById('f_dtUrl').value = r.dtUrl;
+            document.getElementById('f_salesHandoffUrl').value = r.salesHandoffUrl||''; document.getElementById('f_salesPerson').value = r.salesPerson||''; document.getElementById('f_solutionsEngineer').value = r.solutionsEngineer||'';
+            document.getElementById('f_timeZone').value = r.timeZone; document.getElementById('f_addr1').value = r.address?.line1||''; document.getElementById('f_addr2').value = r.address?.line2||''; document.getElementById('f_city').value = r.address?.city||''; document.getElementById('f_state').value = r.address?.state||''; document.getElementById('f_zip').value = r.address?.zip||''; document.getElementById('f_country').value = r.address?.country||'';
+            document.getElementById('f_phone').value = r.phone; document.getElementById('f_callback').value = r.callback; document.getElementById('f_trucks').value = r.trucks; document.getElementById('f_runtime').value = r.runtime; document.getElementById('f_dcCount').value = r.dcCount; document.getElementById('f_goLive').value = r.goLive; document.getElementById('f_loginType').value = r.loginType;
+            document.getElementById('f_hasRouting').value = r.hasRouting; document.getElementById('f_routingProvider').value = r.routingProvider; document.getElementById('f_hasTelematics').value = r.hasTelematics; document.getElementById('f_telematicsProvider').value = r.telematicsProvider;
+            document.getElementById('f_importMethod').value = r.importMethod; document.getElementById('f_posSystem').value = r.posSystem; document.getElementById('f_importFreq').value = r.importFreq;
+            document.getElementById('f_optCubes').value = r.optCubes; document.getElementById('f_optPieces').value = r.optPieces; document.getElementById('f_optWeight').value = r.optWeight; document.getElementById('f_optCats').value = r.optCats;
+            
+            const rVal = r.accountsNeeded ? 'yes' : 'no'; document.querySelector(`input[name="needAccounts"][value="${rVal}"]`).checked = true; window.toggleAccounts(r.accountsNeeded);
+            window.toggleField('f_hasRouting', 'cond_routing', 'Yes'); window.toggleField('f_hasTelematics', 'cond_telematics', 'Yes'); window.handleImportToggle();
+            
+            window.formAccounts = [...(r.accounts||[])]; window.formServices = [...(r.services||[])]; window.formNotifications = [...(r.notifications||[])]; window.formFeatures = [...(r.features||[])];
+            window.renderTags('accountList', 'formAccounts'); window.renderTags('serviceList', 'formServices'); window.renderTags('notifList', 'formNotifications'); window.renderTags('featList', 'formFeatures');
+            
+            window.customFieldsDefinition = [...(r.customFields||[])]; window.customFieldsDefinition.forEach((cf,i) => { if(!cf.id) cf.id='cf_edit_'+i; }); window.renderCustomFieldsForm();
+            window.navigate('view-form');
+        };
+
+        // --- DETAIL VIEW & EXPORTS ---
+        window.viewRecord = (id) => {
+            const r = window.checklists.find(c => c.id === id); if(!r) return; document.getElementById('d_title').innerText = r.companyName; window.editingRecordId = id; // reuse var for export
+            const row = (l, v) => `<div class="detail-row"><div class="detail-label">${l}</div><div class="detail-val">${v||'—'}</div></div>`;
+            const addr = [r.address?.line1, r.address?.line2, r.address?.city, r.address?.state, r.address?.zip, r.address?.country].filter(Boolean).join(', ');
+            
+            let html = `<div style="text-align:center; margin-bottom:2.5rem; padding-bottom:2rem; border-bottom: 2px solid #f1f5f9;"><h2 style="font-size:2rem; color:var(--primary); font-family:'Outfit',sans-serif; margin-bottom:0.5rem;">Implementation Blueprint</h2><p style="color:var(--text-muted);">Authored by ${r.authorName}</p></div>
+                <div class="detail-group"><h3>General Details</h3>${row('Client Name', r.companyName)}${row('Kick-off Date', r.callDate)}${row('Type', r.customerType)}${row('Website', r.website)}${row('Setup URL', r.dtUrl)}${row('Sales Hand-off', r.salesHandoffUrl)}${row('Sales Person', r.salesPerson)}${row('Solutions Engineer', r.solutionsEngineer)}</div>
+                <div class="detail-group"><h3>Locale & Accounts</h3>${r.accountsNeeded ? row('Accounts', (r.accounts||[]).join(', ')) : row('Accounts', 'Not required')}${row('Time Zone', r.timeZone)}${row('Address', addr)}${row('Phone', r.phone)}${row('Callback', r.callback)}</div>
+                <div class="detail-group"><h3>Operations</h3>${row('Services', (r.services||[]).join(', '))}${row('Trucks', r.trucks)}${row('Run Time', r.runtime)}${row('DC Count', r.dcCount)}${row('Go-Live', r.goLive)}${row('Login Type', r.loginType)}${r.hasRouting==='Yes'?row('Legacy Routing',r.routingProvider):''}${r.hasTelematics==='Yes'?row('Telematics',r.telematicsProvider):''}</div>
+                <div class="detail-group"><h3>Data & Routing</h3>${row('Import', r.importMethod)}${row('POS/Notes', r.posSystem)}${row('Freq', r.importFreq)}${row('Cubes Limit', r.optCubes)}${row('Pieces Limit', r.optPieces)}${row('Weight Limit', r.optWeight)}${row('Categories', r.optCats)}</div>`;
+            if(r.notifications?.length || r.features?.length) {
+                html += `<div class="detail-group"><h3>Add-ons</h3>`;
+                if(r.notifications?.length) html += row('Notifications', '<ul style="padding-left:20px;margin:0;">'+r.notifications.map(n=>`<li>${n}</li>`).join('')+'</ul>');
+                if(r.features?.length) html += row('Features', '<ul style="padding-left:20px;margin:0;">'+r.features.map(f=>`<li>${f}</li>`).join('')+'</ul>');
+                html += `</div>`;
+            }
+            if(r.customFields?.length) { html += `<div class="detail-group"><h3>Extra Details</h3>`; r.customFields.forEach(cf => html += row(cf.label, cf.value)); html += `</div>`; }
+            document.getElementById('exportContent').innerHTML = html; window.navigate('view-detail');
+        };
+
+        window.exportPDF = () => { html2pdf().set({ margin: 15, filename: `Blueprint.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(document.getElementById('exportContent')).save(); };
+        window.exportDOCX = () => { 
+            const html = "<html xmlns:w='urn:schemas-microsoft-com:office:word'><head><style>body{font-family:Arial;} h2{color:#4f46e5; text-align:center;} h3{border-bottom:1px solid #ccc; margin-top:20px; padding-bottom:5px;} .detail-row{margin-bottom:8px;} .detail-label{font-weight:bold; color:#475569;}</style></head><body>" + document.getElementById('exportContent').innerHTML + "</body></html>";
+            const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\ufeff', html], { type: 'application/msword' })); a.download = 'Blueprint.doc'; a.click(); 
+        };
+    </script>
+</body>
+</html>
