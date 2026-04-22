@@ -57,7 +57,7 @@
         .user-profile { display: flex; align-items: center; gap: 12px; color: white; margin-bottom: 1.25rem; }
         .avatar { width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
         
-        .main-wrapper { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; position: relative; padding-bottom: 50px;} 
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; position: relative; padding-bottom: 50px;} /* padding for footer */
         .topbar { height: 80px; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 2.5rem; z-index: 10; }
         .topbar-title { font-weight: 600; color: var(--text-muted); font-size: 0.95rem; }
         .content-area { flex: 1; overflow-y: auto; padding: 2.5rem; scroll-behavior: smooth; position: relative; }
@@ -138,25 +138,23 @@
         .action-menu button.del-btn { color: var(--danger); border-top: 1px solid var(--bg-main);}
         .action-menu button.del-btn:hover { background: var(--danger-light); }
         
-        /* DETAIL VIEW & DYNAMIC THEMES */
+        /* DETAIL VIEW */
         .detail-content { background: var(--surface); padding: 4rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-float); border: 1px solid var(--border);}
         .detail-group { margin-bottom: 3rem; }
         .detail-group h3 { font-size: 1.15rem; color: var(--theme-color, var(--primary)); border-bottom: 2px solid var(--bg-main); padding-bottom: 0.75rem; margin-bottom: 1.5rem; font-weight: 700;}
         .detail-row { display: flex; padding: 0.75rem 0; border-bottom: 1px solid #f1f5f9; align-items: flex-start;}
         .detail-label { width: 35%; font-weight: 600; color: var(--text-muted); font-size: 0.9rem;}
-        .detail-val { width: 65%; color: var(--text-main); font-size: 0.95rem; font-weight: 600; word-break: break-word;} 
-        .detail-val a { color: var(--theme-color, var(--primary)); text-decoration: none; }
+        .detail-val { width: 65%; color: var(--text-main); font-size: 0.95rem; font-weight: 600; word-break: break-word; overflow-wrap: break-word;}
+        .detail-val a { color: var(--theme-color, var(--primary)); text-decoration: none; word-break: break-all; display: inline-block;}
         .detail-val a:hover { text-decoration: underline; }
 
         /* FOOTER */
         .footer { position: fixed; bottom: 0; left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-top: 1px solid var(--border); padding: 14px 0; text-align: center; color: var(--text-muted); font-size: 0.8rem; font-weight: 600; z-index: 100; transition: var(--transition);}
 
         /* UTILS */
-        .toast { visibility: hidden; min-width: 300px; background: #0f172a; color: #fff; text-align: center; border-radius: var(--radius-md); padding: 1rem 1.5rem; position: fixed; z-index: 2000; left: 50%; bottom: 40px; transform: translateX(-50%) translateY(20px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); font-weight: 600; font-size: 0.95rem; opacity: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .toast { visibility: hidden; min-width: 300px; background: #0f172a; color: #fff; text-align: center; border-radius: var(--radius-md); padding: 1rem 1.5rem; position: fixed; z-index: 2000; left: 50%; bottom: 80px; transform: translateX(-50%) translateY(20px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); font-weight: 600; font-size: 0.95rem; opacity: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         .toast.show { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
-        
         .error-msg { color: var(--danger); font-size: 0.85rem; margin-top: 0.5rem; display: none; font-weight: 600; background: var(--danger-light); padding: 12px; border-radius: var(--radius-sm); border: 1px solid #fca5a5;}
-        
         .loader { border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid white; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: none; margin: 0 auto; }
         .loader.dark { border-color: #e2e8f0; border-top-color: var(--primary); width: 40px; height: 40px; margin: 4rem auto;}
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -177,7 +175,7 @@
             <div class="auth-card">
                 <h2>Welcome Back</h2>
                 <p>Sign in to your dashboard</p>
-                <form id="loginForm">
+                <form id="loginForm" onsubmit="return false;">
                     <div class="form-group">
                         <label>Email Address</label>
                         <input type="email" id="loginEmail" class="form-control" placeholder="name@company.com" required>
@@ -272,13 +270,13 @@
                         </div>
                         <div class="form-section">
                             <h2>Add Team Member</h2>
-                            <form id="createUserForm">
+                            <form id="createUserForm" onsubmit="return false;">
                                 <div class="grid-3" style="align-items: end;">
                                     <div class="form-group"><label>Full Name</label><input type="text" id="newUserName" class="form-control" required></div>
                                     <div class="form-group"><label>Email Address</label><input type="email" id="newUserEmail" class="form-control" required></div>
                                     <div class="form-group"><label>Password</label><input type="text" id="newUserPass" class="form-control" required></div>
                                 </div>
-                                <div style="margin-top: 1.5rem; text-align: right;"><button type="submit" class="btn btn-primary">Create User</button></div>
+                                <div style="margin-top: 1.5rem; text-align: right;"><button type="submit" class="btn btn-primary" id="btnCreateUser">Create User</button></div>
                             </form>
                         </div>
                         <div class="form-section">
@@ -314,13 +312,13 @@
                             <button class="btn btn-primary" onclick="window.saveForm()">Save Checklist</button>
                         </div>
 
-                        <form id="kickoffForm" onsubmit="event.preventDefault();">
+                        <form id="kickoffForm" onsubmit="return false;">
                             
                             <div class="form-section">
                                 <h2><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"></circle><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path></svg> General Details</h2>
                                 <div class="grid-2">
-                                    <div class="form-group"><label>Business Name *</label><input type="text" class="form-control" id="f_companyName" required></div>
-                                    <div class="form-group"><label>Kick-Off Date</label><input type="date" class="form-control" id="f_callDate"></div>
+                                    <div class="form-group"><label>Business Name *</label><input type="text" class="form-control" id="f_companyName" required onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
+                                    <div class="form-group"><label>Kick-Off Date</label><input type="date" class="form-control" id="f_callDate" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
                                     <div class="form-group">
                                         <label>Customer Type</label>
                                         <select class="form-control" id="f_customerType">
@@ -331,20 +329,20 @@
                                             <option value="DTB">DTB</option>
                                         </select>
                                     </div>
-                                    <div class="form-group"><label>Customer Website</label><input type="url" class="form-control" id="f_website" placeholder="https://"></div>
-                                    <div class="form-group full"><label>DT Instance URL</label><input type="text" class="form-control" id="f_dtUrl" placeholder="e.g. acme.dispatchtrack.com"></div>
+                                    <div class="form-group"><label>Customer Website</label><input type="url" class="form-control" id="f_website" placeholder="https://" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
+                                    <div class="form-group full"><label>DT Instance URL</label><input type="text" class="form-control" id="f_dtUrl" placeholder="e.g. acme.dispatchtrack.com" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
                                 </div>
                                 <div class="grid-3" style="margin-top: 1.75rem; padding-top: 1.75rem; border-top: 1px dashed var(--border);">
-                                    <div class="form-group"><label>Sales Hand-off URL</label><input type="url" class="form-control" id="f_salesHandoffUrl" placeholder="Link to CRM/Notes"></div>
-                                    <div class="form-group"><label>Sales Person</label><input type="text" class="form-control" id="f_salesPerson" placeholder="Name"></div>
-                                    <div class="form-group"><label>Solutions Engineer</label><input type="text" class="form-control" id="f_solutionsEngineer" placeholder="Name"></div>
-                                    <div class="form-group"><label>CSM Name</label><input type="text" class="form-control" id="f_csmName" placeholder="Name"></div>
-                                    <div class="form-group"><label>CSE Name</label><input type="text" class="form-control" id="f_cseName" placeholder="Name"></div>
+                                    <div class="form-group"><label>Sales Hand-off URL</label><input type="url" class="form-control" id="f_salesHandoffUrl" placeholder="Link to CRM/Notes" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
+                                    <div class="form-group"><label>Sales Person</label><input type="text" class="form-control" id="f_salesPerson" placeholder="Name" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
+                                    <div class="form-group"><label>Solutions Engineer</label><input type="text" class="form-control" id="f_solutionsEngineer" placeholder="Name" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
+                                    <div class="form-group"><label>CSM Name</label><input type="text" class="form-control" id="f_csmName" placeholder="Name" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
+                                    <div class="form-group"><label>CSE Name</label><input type="text" class="form-control" id="f_cseName" placeholder="Name" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
                                 </div>
                             </div>
 
                             <div class="form-section">
-                                <h2><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Locale & Accounts</h2>
+                                <h2><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Accounts and Business Information</h2>
                                 
                                 <div class="form-group" style="background: var(--bg-main); padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border);">
                                     <label>Do you need to track specific Account Names?</label>
@@ -355,7 +353,7 @@
                                     <div id="accountsWrapper" class="conditional-field">
                                         <label>Add Account Names</label>
                                         <div class="input-with-btn">
-                                            <input type="text" class="form-control" id="accountInput" placeholder="Type a name and press Add...">
+                                            <input type="text" class="form-control" id="accountInput" placeholder="Type a name and press Enter..." onkeydown="if(event.key === 'Enter') { event.preventDefault(); window.addTag('accountList', 'accountInput', 'formAccounts'); }">
                                             <button type="button" class="btn btn-primary" onclick="window.addTag('accountList', 'accountInput', 'formAccounts')">Add</button>
                                         </div>
                                         <div id="accountList" class="tags-container"></div>
@@ -365,7 +363,7 @@
                                 <div class="grid-2" style="margin-top: 2rem;">
                                     <div class="form-group">
                                         <label>Time Zone</label>
-                                        <input list="timezones" class="form-control" id="f_timeZone" placeholder="Type or select timezone...">
+                                        <input list="timezones" class="form-control" id="f_timeZone" placeholder="Type or select timezone..." onkeydown="if(event.key === 'Enter') event.preventDefault();">
                                         <datalist id="timezones">
                                             <option value="Eastern Time (EST)"></option>
                                             <option value="Central Time (CST)"></option>
@@ -386,17 +384,17 @@
                                 <div style="margin-top: 2rem;">
                                     <label style="margin-bottom: 0.75rem; display: block; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Physical Address</label>
                                     <div class="grid-2">
-                                        <div class="form-group full"><input type="text" class="form-control" id="f_addr1" placeholder="Address Line 1"></div>
-                                        <div class="form-group full"><input type="text" class="form-control" id="f_addr2" placeholder="Address Line 2 (Suite, Floor, etc)"></div>
-                                        <div class="form-group"><input type="text" class="form-control" id="f_city" placeholder="City"></div>
-                                        <div class="form-group"><input type="text" class="form-control" id="f_state" placeholder="State / Province"></div>
-                                        <div class="form-group"><input type="text" class="form-control" id="f_zip" placeholder="ZIP / Postal Code"></div>
-                                        <div class="form-group"><input type="text" class="form-control" id="f_country" placeholder="Country"></div>
+                                        <div class="form-group full"><input type="text" class="form-control" id="f_addr1" placeholder="Address Line 1" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
+                                        <div class="form-group full"><input type="text" class="form-control" id="f_addr2" placeholder="Address Line 2 (Suite, Floor, etc)" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
+                                        <div class="form-group"><input type="text" class="form-control" id="f_city" placeholder="City" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
+                                        <div class="form-group"><input type="text" class="form-control" id="f_state" placeholder="State / Province" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
+                                        <div class="form-group"><input type="text" class="form-control" id="f_zip" placeholder="ZIP / Postal Code" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
+                                        <div class="form-group"><input type="text" class="form-control" id="f_country" placeholder="Country" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
                                     </div>
                                 </div>
                                 <div class="grid-2" style="margin-top: 2rem;">
-                                    <div class="form-group"><label>Main Phone</label><input type="tel" class="form-control" id="f_phone"></div>
-                                    <div class="form-group"><label>Call Back Number</label><input type="tel" class="form-control" id="f_callback"></div>
+                                    <div class="form-group"><label>Main Phone</label><input type="tel" class="form-control" id="f_phone" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
+                                    <div class="form-group"><label>Call Back Number</label><input type="tel" class="form-control" id="f_callback" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
                                 </div>
                             </div>
 
@@ -406,20 +404,20 @@
                                 <div class="form-group full" style="margin-bottom: 2rem;">
                                     <label>Service Types Offered</label>
                                     <div class="input-with-btn">
-                                        <input type="text" class="form-control" id="serviceInput" placeholder="e.g. White Glove, Threshold">
+                                        <input type="text" class="form-control" id="serviceInput" placeholder="e.g. White Glove, Threshold (Press Enter to add)" onkeydown="if(event.key === 'Enter') { event.preventDefault(); window.addTag('serviceList', 'serviceInput', 'formServices'); }">
                                         <button type="button" class="btn btn-primary" onclick="window.addTag('serviceList', 'serviceInput', 'formServices')">Add</button>
                                     </div>
                                     <div id="serviceList" class="tags-container"></div>
                                 </div>
 
                                 <div class="grid-3">
-                                    <div class="form-group"><label>Number of Trucks</label><input type="number" class="form-control" id="f_trucks"></div>
-                                    <div class="form-group"><label>Run Time / Truck</label><input type="text" class="form-control" id="f_runtime" placeholder="e.g. 9 hours"></div>
-                                    <div class="form-group"><label>Distribution Centers Count</label><input type="number" class="form-control" id="f_dcCount"></div>
+                                    <div class="form-group"><label>Number of Trucks</label><input type="number" class="form-control" id="f_trucks" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
+                                    <div class="form-group"><label>Run Time / Truck</label><input type="text" class="form-control" id="f_runtime" placeholder="e.g. 9 hours" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
+                                    <div class="form-group"><label>Distribution Centers Count</label><input type="number" class="form-control" id="f_dcCount" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
                                 </div>
 
                                 <div class="grid-2" style="margin-top: 2rem;">
-                                    <div class="form-group"><label>Expected Go-Live</label><input type="date" class="form-control" id="f_goLive"></div>
+                                    <div class="form-group"><label>Expected Go-Live</label><input type="date" class="form-control" id="f_goLive" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
                                     <div class="form-group">
                                         <label>Mobile Login Style</label>
                                         <select class="form-control" id="f_loginType">
@@ -434,7 +432,7 @@
                                         <select class="form-control" id="f_hasRouting" onchange="window.toggleField('f_hasRouting', 'cond_routing', 'Yes')">
                                             <option value="">Select...</option><option value="Yes">Yes</option><option value="No">No</option>
                                         </select>
-                                        <div id="cond_routing" class="conditional-field"><label>Which software?</label><input type="text" class="form-control" id="f_routingProvider"></div>
+                                        <div id="cond_routing" class="conditional-field"><label>Which software?</label><input type="text" class="form-control" id="f_routingProvider" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
                                     </div>
 
                                     <div class="form-group">
@@ -442,7 +440,7 @@
                                         <select class="form-control" id="f_hasTelematics" onchange="window.toggleField('f_hasTelematics', 'cond_telematics', 'Yes')">
                                             <option value="">Select...</option><option value="Yes">Yes</option><option value="No">No</option>
                                         </select>
-                                        <div id="cond_telematics" class="conditional-field"><label>Provider Name?</label><input type="text" class="form-control" id="f_telematicsProvider"></div>
+                                        <div id="cond_telematics" class="conditional-field"><label>Provider Name?</label><input type="text" class="form-control" id="f_telematicsProvider" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
                                     </div>
                                 </div>
                             </div>
@@ -454,6 +452,7 @@
                                         <label>Import Method</label>
                                         <select class="form-control" id="f_importMethod" onchange="window.handleImportToggle()">
                                             <option value="">Select method...</option>
+                                            <option value="Manual Creation">Manual Creation</option>
                                             <option value="CSV Export">CSV Export</option>
                                             <option value="API Integration">API Integration</option>
                                             <option value="FTP Transfer">FTP Transfer</option>
@@ -469,17 +468,17 @@
                                             <textarea class="form-control" id="f_posSystem" placeholder="Enter POS system details or specific integration notes here..."></textarea>
                                         </div>
                                     </div>
-                                    <div class="form-group"><label>Sync Frequency</label><input type="text" class="form-control" id="f_importFreq" placeholder="e.g. Daily 5PM"></div>
+                                    <div class="form-group"><label>Sync Frequency</label><input type="text" class="form-control" id="f_importFreq" placeholder="e.g. Daily 5PM" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
                                 </div>
                             </div>
 
                             <div class="form-section">
                                 <h2><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg> Optimization Rules</h2>
                                 <div class="grid-2">
-                                    <div class="form-group"><label>Cubes Limit</label><input type="text" class="form-control" id="f_optCubes"></div>
-                                    <div class="form-group"><label>Pieces Limit</label><input type="text" class="form-control" id="f_optPieces"></div>
-                                    <div class="form-group"><label>Weight Limit</label><input type="text" class="form-control" id="f_optWeight"></div>
-                                    <div class="form-group"><label>Categories</label><input type="text" class="form-control" id="f_optCats"></div>
+                                    <div class="form-group"><label>Cubes Limit</label><input type="text" class="form-control" id="f_optCubes" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
+                                    <div class="form-group"><label>Pieces Limit</label><input type="text" class="form-control" id="f_optPieces" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
+                                    <div class="form-group"><label>Weight Limit</label><input type="text" class="form-control" id="f_optWeight" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
+                                    <div class="form-group"><label>Categories</label><input type="text" class="form-control" id="f_optCats" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
                                 </div>
                             </div>
 
@@ -489,7 +488,7 @@
                                     <div class="form-group">
                                         <label>Customer Notifications</label>
                                         <div class="input-with-btn">
-                                            <input type="text" class="form-control" id="notifInput" placeholder="e.g., SMS Arriving Soon">
+                                            <input type="text" class="form-control" id="notifInput" placeholder="e.g., SMS Arriving Soon (Press Enter)" onkeydown="if(event.key === 'Enter') { event.preventDefault(); window.addTag('notifList', 'notifInput', 'formNotifications'); }">
                                             <button type="button" class="btn btn-primary" onclick="window.addTag('notifList', 'notifInput', 'formNotifications')">Add</button>
                                         </div>
                                         <div id="notifList" class="tags-container"></div>
@@ -497,7 +496,7 @@
                                     <div class="form-group">
                                         <label>Required Modules</label>
                                         <div class="input-with-btn">
-                                            <input type="text" class="form-control" id="featInput" placeholder="e.g., AI Chatbot">
+                                            <input type="text" class="form-control" id="featInput" placeholder="e.g., AI Chatbot (Press Enter)" onkeydown="if(event.key === 'Enter') { event.preventDefault(); window.addTag('featList', 'featInput', 'formFeatures'); }">
                                             <button type="button" class="btn btn-primary" onclick="window.addTag('featList', 'featInput', 'formFeatures')">Add</button>
                                         </div>
                                         <div id="featList" class="tags-container"></div>
@@ -517,7 +516,7 @@
                                 <div class="friendly-adder">
                                     <p style="font-weight: 700; color: var(--text-main); margin-bottom: 1rem;">Need to track a specific attribute?</p>
                                     <div class="friendly-inputs">
-                                        <div class="form-group" style="text-align:left;"><label>Question / Label</label><input type="text" class="form-control" id="customLabel" placeholder="e.g. Billing ID"></div>
+                                        <div class="form-group" style="text-align:left;"><label>Question / Label</label><input type="text" class="form-control" id="customLabel" placeholder="e.g. Billing ID" onkeydown="if(event.key === 'Enter') { event.preventDefault(); window.addCustomField(); }"></div>
                                         <div class="form-group" style="text-align:left;"><label>Data Type</label><select class="form-control" id="customType"><option value="text">Text</option><option value="number">Number</option><option value="date">Date</option></select></div>
                                         <button type="button" class="btn btn-outline" style="height: 48px;" onclick="window.addCustomField()">Append Field</button>
                                     </div>
@@ -537,7 +536,7 @@
                                 <p>Manage and export your implementation blueprints.</p>
                             </div>
                             <div style="display: flex; gap: 1rem; align-items: center;">
-                                <input type="text" id="searchInput" class="search-bar" placeholder="Search client or author..." onkeyup="window.filterChecklists()">
+                                <input type="text" id="searchInput" class="search-bar" placeholder="Search client or author..." onkeyup="window.filterChecklists()" onkeydown="if(event.key === 'Enter') event.preventDefault();">
                                 <button class="btn btn-primary" onclick="window.navigate('view-form')">+ New Setup</button>
                             </div>
                         </div>
@@ -550,7 +549,7 @@
                                     <th>Client Organization</th>
                                     <th>Created By</th>
                                     <th>Type</th>
-                                    <th style="width: 200px;">Actions</th>
+                                    <th style="width: 200px; text-align:center;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="listTableBody"></tbody>
@@ -687,8 +686,7 @@
             } catch(e) { console.error(e); }
         }
 
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        document.getElementById('loginBtn').addEventListener('click', async (e) => {
             const errDiv = document.getElementById('loginError'); errDiv.style.display = 'none';
             document.getElementById('loginBtn').querySelector('span').style.display = 'none'; document.getElementById('loginLoader').style.display = 'block';
 
@@ -703,7 +701,6 @@
                     let userData = snapshot.docs[0].data();
                     let docId = snapshot.docs[0].id;
                     
-                    // Force fix for old "Master Admin" name cache in database
                     if (userData.email === "revanth.abbati@dispatchtrack.com" && userData.name === "Master Admin") {
                         await updateDoc(doc(db, "users", docId), { name: "Revanth Reddy Abbati" });
                         userData.name = "Revanth Reddy Abbati";
@@ -737,8 +734,7 @@
         };
 
         // --- ADMIN MODULE ---
-        document.getElementById('createUserForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        document.getElementById('btnCreateUser').addEventListener('click', async (e) => {
             try {
                 await addDoc(collection(db, "users"), { 
                     name: document.getElementById('newUserName').value.trim(), email: document.getElementById('newUserEmail').value.trim(), 
@@ -824,7 +820,7 @@
 
         window.renderCustomFieldsForm = () => {
             const c = document.getElementById('customFieldsContainer'); c.innerHTML = '';
-            window.customFieldsDefinition.forEach(cf => { c.innerHTML += `<div class="form-group"><label>${cf.label}</label><input type="${cf.type}" class="form-control" id="${cf.id}" value="${cf.value}"></div>`; });
+            window.customFieldsDefinition.forEach(cf => { c.innerHTML += `<div class="form-group"><label>${cf.label}</label><input type="${cf.type}" class="form-control" id="${cf.id}" value="${cf.value}" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>`; });
         };
 
         window.resetForm = () => {
@@ -839,16 +835,16 @@
             if(!document.getElementById('f_companyName').value.trim()) { alert("Client Name is required."); return; }
             const companyName = document.getElementById('f_companyName').value;
             
-            // Get original author if editing, otherwise current user
             let authorEmail = window.currentUser.email;
             let authorName = window.currentUser.name;
+            
             if(window.editingRecordId) {
                 const existing = window.checklists.find(c => c.id === window.editingRecordId);
                 if(existing) { authorEmail = existing.authorEmail; authorName = existing.authorName; }
             }
 
             const recordData = {
-                authorEmail: authorEmail, authorName: authorName, timestamp: Date.now(),
+                authorEmail: authorEmail || "Unknown", authorName: authorName || "Unknown", timestamp: Date.now(),
                 companyName: companyName, callDate: document.getElementById('f_callDate').value,
                 customerType: document.getElementById('f_customerType').value, website: document.getElementById('f_website').value, dtUrl: document.getElementById('f_dtUrl').value,
                 salesHandoffUrl: document.getElementById('f_salesHandoffUrl').value, salesPerson: document.getElementById('f_salesPerson').value, solutionsEngineer: document.getElementById('f_solutionsEngineer').value,
@@ -875,7 +871,9 @@
                     await addDoc(collection(db, "checklists"), recordData);
                     logAction('CREATE', `Created checklist for ${companyName}`);
                 }
-                window.showToast("Checklist Saved Successfully!"); window.editingRecordId = null; window.navigate('view-list');
+                window.showToast("Checklist Saved Successfully!"); 
+                window.editingRecordId = null; 
+                window.navigate('view-list');
             } catch(e) { console.error(e); alert("Error saving."); }
         };
 
@@ -909,7 +907,7 @@
                     const canEdit = window.currentUser.role === 'master' || window.currentUser.canEditAll || window.currentUser.email === item.authorEmail;
                     let acts = `<button class="btn btn-outline btn-sm" onclick="window.viewRecord('${item.id}')">View</button>`;
                     if(canEdit) acts += `<button class="btn btn-outline btn-sm" style="margin-left:8px;" onclick="window.loadEdit('${item.id}')">Edit</button><button class="btn btn-danger btn-sm" style="margin-left:8px;" onclick="window.deleteRecord('${item.id}', '${item.companyName}')">Delete</button>`;
-                    tbody.innerHTML += `<tr><td style="font-weight: 700; color: var(--text-main); font-size:1.05rem;">${item.companyName}</td><td style="color:var(--text-muted)">${item.authorName}</td><td><span class="tag-pill" style="background:#f1f5f9; border:1px solid #cbd5e1; color:#475569;">${item.customerType || 'N/A'}</span></td><td>${acts}</td></tr>`;
+                    tbody.innerHTML += `<tr><td style="font-weight: 700; color: var(--text-main); font-size:1.05rem;">${item.companyName}</td><td style="color:var(--text-muted)">${item.authorName}</td><td><span class="tag-pill" style="background:#f1f5f9; border:1px solid #cbd5e1; color:#475569;">${item.customerType || 'N/A'}</span></td><td style="text-align:center;">${acts}</td></tr>`;
                 });
             }
         };
@@ -951,13 +949,13 @@
             if(r.customerType === 'DTB') tColor = '#e11d48'; 
             document.documentElement.style.setProperty('--theme-color', tColor);
 
-            const linkify = (url) => url ? `<a href="${url}" target="_blank">${url}</a>` : '—';
+            const linkify = (url, customText) => url ? `<a href="${url.startsWith('http') ? url : 'https://'+url}" target="_blank" style="word-break: break-all;">${customText || url}</a>` : '—';
             const row = (l, v) => `<div class="detail-row"><div class="detail-label">${l}</div><div class="detail-val">${v||'—'}</div></div>`;
             const addr = [r.address?.line1, r.address?.line2, r.address?.city, r.address?.state, r.address?.zip, r.address?.country].filter(Boolean).join(', ');
             
             let html = `<div style="text-align:center; margin-bottom:2.5rem; padding-bottom:2rem; border-bottom: 2px solid #f1f5f9;"><h2 style="font-size:2rem; color:var(--theme-color); font-family:'Outfit',sans-serif; margin-bottom:0.5rem;">Kick Off Checklist</h2><p style="color:var(--text-muted);">Created by ${r.authorName}</p></div>
-                <div class="detail-group"><h3>General Details</h3>${row('Client Name', r.companyName)}${row('Kick-off Date', r.callDate)}${row('Type', r.customerType)}${row('Website', linkify(r.website))}${row('Setup URL', r.dtUrl)}${row('Sales Hand-off', linkify(r.salesHandoffUrl))}${row('Sales Person', r.salesPerson)}${row('Solutions Engineer', r.solutionsEngineer)}${row('CSM Name', r.csmName)}${row('CSE Name', r.cseName)}</div>
-                <div class="detail-group"><h3>Locale & Accounts</h3>${r.accountsNeeded ? row('Accounts', (r.accounts||[]).join(', ')) : row('Accounts', 'Not required')}${row('Time Zone', r.timeZone)}${row('Address', addr)}${row('Phone', r.phone)}${row('Callback', r.callback)}</div>
+                <div class="detail-group"><h3>General Details</h3>${row('Client Name', r.companyName)}${row('Kick-off Date', r.callDate)}${row('Type', r.customerType)}${row('Website', linkify(r.website))}${row('Setup URL', linkify(r.dtUrl))}${row('Sales Hand-off', linkify(r.salesHandoffUrl, r.companyName + ' - Sales Handoff'))}${row('Sales Person', r.salesPerson)}${row('Solutions Engineer', r.solutionsEngineer)}${row('CSM Name', r.csmName)}${row('CSE Name', r.cseName)}</div>
+                <div class="detail-group"><h3>Accounts and Business Information</h3>${r.accountsNeeded ? row('Accounts', (r.accounts||[]).join(', ')) : row('Accounts', 'Not required')}${row('Time Zone', r.timeZone)}${row('Address', addr)}${row('Phone', r.phone)}${row('Callback', r.callback)}</div>
                 <div class="detail-group"><h3>Operations</h3>${row('Services', (r.services||[]).join(', '))}${row('Trucks', r.trucks)}${row('Run Time', r.runtime)}${row('DC Count', r.dcCount)}${row('Go-Live', r.goLive)}${row('Login Type', r.loginType)}${r.hasRouting==='Yes'?row('Legacy Routing',r.routingProvider):''}${r.hasTelematics==='Yes'?row('Telematics',r.telematicsProvider):''}</div>
                 <div class="detail-group"><h3>Data & Routing</h3>${row('Import', r.importMethod)}${row('POS/Notes', r.posSystem)}${row('Freq', r.importFreq)}${row('Cubes Limit', r.optCubes)}${row('Pieces Limit', r.optPieces)}${row('Weight Limit', r.optWeight)}${row('Categories', r.optCats)}</div>`;
             if(r.notifications?.length || r.features?.length) {
@@ -974,7 +972,7 @@
         window.exportPDF = () => { html2pdf().set({ margin: 15, filename: `Kick_Off_Checklist.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(document.getElementById('exportContent')).save(); };
         window.exportDOCX = () => { 
             const tColor = document.documentElement.style.getPropertyValue('--theme-color') || '#4f46e5';
-            const html = `<html xmlns:w='urn:schemas-microsoft-com:office:word'><head><style>body{font-family:Arial;} h2{color:${tColor}; text-align:center;} h3{color:${tColor}; border-bottom:1px solid #ccc; margin-top:20px; padding-bottom:5px;} .detail-row{margin-bottom:8px;} .detail-label{font-weight:bold; color:#475569;} a{color:${tColor};}</style></head><body>` + document.getElementById('exportContent').innerHTML + "</body></html>";
+            const html = `<html xmlns:w='urn:schemas-microsoft-com:office:word'><head><style>body{font-family:Arial;} h2{color:${tColor}; text-align:center;} h3{color:${tColor}; border-bottom:1px solid #ccc; margin-top:20px; padding-bottom:5px;} .detail-row{margin-bottom:8px;} .detail-label{font-weight:bold; color:#475569;} a{color:${tColor}; word-break: break-all;}</style></head><body>` + document.getElementById('exportContent').innerHTML + "</body></html>";
             const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\ufeff', html], { type: 'application/msword' })); a.download = 'Kick_Off_Checklist.doc'; a.click(); 
         };
     </script>
