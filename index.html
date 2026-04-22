@@ -57,7 +57,7 @@
         .user-profile { display: flex; align-items: center; gap: 12px; color: white; margin-bottom: 1.25rem; }
         .avatar { width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
         
-        .main-wrapper { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; position: relative; padding-bottom: 50px;} /* padding for footer */
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; position: relative; padding-bottom: 50px;} 
         .topbar { height: 80px; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 2.5rem; z-index: 10; }
         .topbar-title { font-weight: 600; color: var(--text-muted); font-size: 0.95rem; }
         .content-area { flex: 1; overflow-y: auto; padding: 2.5rem; scroll-behavior: smooth; position: relative; }
@@ -91,6 +91,7 @@
         .form-group label { font-size: 0.85rem; font-weight: 700; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.05em; }
 
         .form-control { width: 100%; padding: 0.85rem 1.25rem; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 0.95rem; color: var(--text-main); background-color: var(--bg-main); transition: var(--transition); font-weight: 500; appearance: none; font-family: inherit; }
+        textarea.form-control { resize: vertical; min-height: 80px;}
         select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1.25rem center; background-size: 1rem; padding-right: 3rem; }
         .form-control:hover { border-color: #cbd5e1; }
         .form-control:focus { outline: none; border-color: var(--border-focus); background-color: white; box-shadow: 0 0 0 4px var(--primary-glow); }
@@ -118,7 +119,7 @@
         .friendly-adder { background: #f8fafc; padding: 1.5rem; border-radius: var(--radius-md); border: 1px dashed #cbd5e1; text-align: center; margin-top: 1rem;}
         .friendly-inputs { display: flex; gap: 1rem; justify-content: center; align-items: flex-end; flex-wrap: wrap;}
 
-        /* TABLES */
+        /* TABLES & ADMIN DROPDOWN */
         .data-table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--surface); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-card); border: 1px solid var(--border); }
         .data-table th, .data-table td { padding: 1.25rem 1.5rem; text-align: left; border-bottom: 1px solid var(--border); vertical-align: middle;}
         .data-table th { background: var(--bg-main); font-weight: 700; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #cbd5e1;}
@@ -127,32 +128,42 @@
         .empty-state { text-align: center; padding: 5rem 2rem; background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); border: 1px dashed #cbd5e1;}
         .empty-state svg { margin-bottom: 1rem; color: #cbd5e1; }
 
-        .admin-action-menu { position: relative; display: inline-block; }
-        .admin-action-btn { background: transparent; border: 1px solid var(--border); padding: 6px 12px; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600; font-size: 0.8rem; color: var(--text-main); }
-        .admin-action-btn:hover { background: var(--bg-main); }
+        .action-dropdown { position: relative; display: inline-block; }
+        .action-btn { background: var(--bg-main); border: 1px solid var(--border); border-radius: var(--radius-sm); width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); transition: var(--transition); }
+        .action-btn:hover { background: #e2e8f0; color: var(--text-main); }
+        .action-menu { display: none; position: absolute; right: 0; top: 100%; background: white; min-width: 160px; box-shadow: var(--shadow-float); border-radius: var(--radius-md); border: 1px solid var(--border); z-index: 100; overflow: hidden; margin-top: 4px;}
+        .action-dropdown:hover .action-menu, .action-menu.show { display: block; }
+        .action-menu button { display: block; width: 100%; text-align: left; padding: 0.75rem 1rem; border: none; background: white; cursor: pointer; font-size: 0.85rem; font-weight: 500; font-family: inherit; color: var(--text-main); transition: background 0.2s;}
+        .action-menu button:hover { background: var(--bg-main); }
+        .action-menu button.del-btn { color: var(--danger); border-top: 1px solid var(--bg-main);}
+        .action-menu button.del-btn:hover { background: var(--danger-light); }
         
-        /* DETAIL VIEW */
+        /* DETAIL VIEW & DYNAMIC THEMES */
         .detail-content { background: var(--surface); padding: 4rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-float); border: 1px solid var(--border);}
         .detail-group { margin-bottom: 3rem; }
-        .detail-group h3 { font-size: 1.15rem; color: var(--primary); border-bottom: 2px solid var(--bg-main); padding-bottom: 0.75rem; margin-bottom: 1.5rem; font-weight: 700;}
+        .detail-group h3 { font-size: 1.15rem; color: var(--theme-color, var(--primary)); border-bottom: 2px solid var(--bg-main); padding-bottom: 0.75rem; margin-bottom: 1.5rem; font-weight: 700;}
         .detail-row { display: flex; padding: 0.75rem 0; border-bottom: 1px solid #f1f5f9; align-items: flex-start;}
         .detail-label { width: 35%; font-weight: 600; color: var(--text-muted); font-size: 0.9rem;}
-        .detail-val { width: 65%; color: var(--text-main); font-size: 0.95rem; font-weight: 600;}
+        .detail-val { width: 65%; color: var(--text-main); font-size: 0.95rem; font-weight: 600; word-break: break-word;} 
+        .detail-val a { color: var(--theme-color, var(--primary)); text-decoration: none; }
+        .detail-val a:hover { text-decoration: underline; }
 
         /* FOOTER */
-        .footer { position: fixed; bottom: 0; left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); border-top: 1px solid var(--border); padding: 12px 0; text-align: center; color: var(--text-muted); font-size: 0.8rem; font-weight: 600; z-index: 100; transition: var(--transition);}
+        .footer { position: fixed; bottom: 0; left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-top: 1px solid var(--border); padding: 14px 0; text-align: center; color: var(--text-muted); font-size: 0.8rem; font-weight: 600; z-index: 100; transition: var(--transition);}
 
         /* UTILS */
-        .toast { visibility: hidden; min-width: 300px; background: #0f172a; color: #fff; text-align: center; border-radius: var(--radius-md); padding: 1rem 1.5rem; position: fixed; z-index: 2000; left: 50%; bottom: 80px; transform: translateX(-50%) translateY(20px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); font-weight: 600; font-size: 0.95rem; opacity: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .toast { visibility: hidden; min-width: 300px; background: #0f172a; color: #fff; text-align: center; border-radius: var(--radius-md); padding: 1rem 1.5rem; position: fixed; z-index: 2000; left: 50%; bottom: 40px; transform: translateX(-50%) translateY(20px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); font-weight: 600; font-size: 0.95rem; opacity: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         .toast.show { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
+        
         .error-msg { color: var(--danger); font-size: 0.85rem; margin-top: 0.5rem; display: none; font-weight: 600; background: var(--danger-light); padding: 12px; border-radius: var(--radius-sm); border: 1px solid #fca5a5;}
+        
         .loader { border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid white; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: none; margin: 0 auto; }
         .loader.dark { border-color: #e2e8f0; border-top-color: var(--primary); width: 40px; height: 40px; margin: 4rem auto;}
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .badge { padding: 4px 10px; border-radius: 99px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;}
+        .badge { padding: 4px 10px; border-radius: 99px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;}
         .badge-master { background: #fef08a; color: #854d0e; }
         .badge-user { background: #e0e7ff; color: #4338ca; }
-        .badge-edit { background: #dcfce7; color: #065f46; margin-left: 6px;}
+        .badge-edit { background: #dcfce7; color: #065f46; margin-left: 4px;}
     </style>
 </head>
 <body>
@@ -273,7 +284,7 @@
                         <div class="form-section">
                             <h2>Active Team Members</h2>
                             <table class="data-table">
-                                <thead><tr><th>Name</th><th>Email</th><th>Role / Privileges</th><th style="width: 250px;">Actions</th></tr></thead>
+                                <thead><tr><th>Name</th><th>Email</th><th>Role / Privileges</th><th style="width: 80px; text-align:center;">Actions</th></tr></thead>
                                 <tbody id="usersTableBody"></tbody>
                             </table>
                         </div>
@@ -320,13 +331,15 @@
                                             <option value="DTB">DTB</option>
                                         </select>
                                     </div>
-                                    <div class="form-group"><label>Customer Website</label><input type="url" class="form-control" id="f_website"></div>
+                                    <div class="form-group"><label>Customer Website</label><input type="url" class="form-control" id="f_website" placeholder="https://"></div>
                                     <div class="form-group full"><label>DT Instance URL</label><input type="text" class="form-control" id="f_dtUrl" placeholder="e.g. acme.dispatchtrack.com"></div>
                                 </div>
                                 <div class="grid-3" style="margin-top: 1.75rem; padding-top: 1.75rem; border-top: 1px dashed var(--border);">
                                     <div class="form-group"><label>Sales Hand-off URL</label><input type="url" class="form-control" id="f_salesHandoffUrl" placeholder="Link to CRM/Notes"></div>
                                     <div class="form-group"><label>Sales Person</label><input type="text" class="form-control" id="f_salesPerson" placeholder="Name"></div>
                                     <div class="form-group"><label>Solutions Engineer</label><input type="text" class="form-control" id="f_solutionsEngineer" placeholder="Name"></div>
+                                    <div class="form-group"><label>CSM Name</label><input type="text" class="form-control" id="f_csmName" placeholder="Name"></div>
+                                    <div class="form-group"><label>CSE Name</label><input type="text" class="form-control" id="f_cseName" placeholder="Name"></div>
                                 </div>
                             </div>
 
@@ -358,6 +371,14 @@
                                             <option value="Central Time (CST)"></option>
                                             <option value="Mountain Time (MST)"></option>
                                             <option value="Pacific Time (PST)"></option>
+                                            <option value="Alaska Time (AST)"></option>
+                                            <option value="Hawaii-Aleutian Time (HST)"></option>
+                                            <option value="Greenwich Mean Time (GMT)"></option>
+                                            <option value="British Summer Time (BST)"></option>
+                                            <option value="Central European Time (CET)"></option>
+                                            <option value="India Standard Time (IST)"></option>
+                                            <option value="Australian Eastern Standard Time (AEST)"></option>
+                                            <option value="Australian Eastern Daylight Time (AEDT)"></option>
                                         </datalist>
                                     </div>
                                 </div>
@@ -403,13 +424,13 @@
                                         <label>Mobile Login Style</label>
                                         <select class="form-control" id="f_loginType">
                                             <option value="">Select style...</option>
-                                            <option value="Service Unit based">Service Unit based</option>
                                             <option value="Truck based">Truck based</option>
+                                            <option value="Driver based">Driver based</option>
                                         </select>
                                     </div>
                                     
                                     <div class="form-group">
-                                        <label>Used Routing Software?</label>
+                                        <label>Legacy Routing Software?</label>
                                         <select class="form-control" id="f_hasRouting" onchange="window.toggleField('f_hasRouting', 'cond_routing', 'Yes')">
                                             <option value="">Select...</option><option value="Yes">Yes</option><option value="No">No</option>
                                         </select>
@@ -417,7 +438,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <label>Had any Telematics Devices?</label>
+                                        <label>Hardware Telematics?</label>
                                         <select class="form-control" id="f_hasTelematics" onchange="window.toggleField('f_hasTelematics', 'cond_telematics', 'Yes')">
                                             <option value="">Select...</option><option value="Yes">Yes</option><option value="No">No</option>
                                         </select>
@@ -433,10 +454,10 @@
                                         <label>Import Method</label>
                                         <select class="form-control" id="f_importMethod" onchange="window.handleImportToggle()">
                                             <option value="">Select method...</option>
-                                            <option value="CSV">CSV Export</option>
-                                            <option value="API">API Integration</option>
-                                            <option value="FTP">FTP Transfer</option>
-                                            <option value="360">360 Direct</option>
+                                            <option value="CSV Export">CSV Export</option>
+                                            <option value="API Integration">API Integration</option>
+                                            <option value="FTP Transfer">FTP Transfer</option>
+                                            <option value="360 Direct">360 Direct</option>
                                             <option value="Storis">Storis</option>
                                             <option value="Storis API">Storis API</option>
                                             <option value="Netsuite">Netsuite</option>
@@ -445,7 +466,7 @@
                                         </select>
                                         <div id="cond_pos" class="conditional-field">
                                             <label style="margin-bottom: 0.5rem;">Implementation Notes & Custom POS</label>
-                                            <textarea class="form-control" id="f_posSystem" placeholder="Enter POS system details or specific integration notes here..." style="min-height: 100px; resize: vertical;"></textarea>
+                                            <textarea class="form-control" id="f_posSystem" placeholder="Enter POS system details or specific integration notes here..."></textarea>
                                         </div>
                                     </div>
                                     <div class="form-group"><label>Sync Frequency</label><input type="text" class="form-control" id="f_importFreq" placeholder="e.g. Daily 5PM"></div>
@@ -485,7 +506,12 @@
                             </div>
 
                             <div class="form-section">
-                                <h2><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg> Custom Requirements</h2>
+                                <h2><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg> Review & Custom</h2>
+                                <div class="grid-2" style="margin-bottom: 2rem;">
+                                    <div class="form-group full"><label>Pending Items</label><textarea class="form-control" id="f_pendingItems" placeholder="Tasks to be completed before go-live..."></textarea></div>
+                                    <div class="form-group full"><label>Additional Notes</label><textarea class="form-control" id="f_additionalNotes" placeholder="Any extra information..."></textarea></div>
+                                </div>
+
                                 <div id="customFieldsContainer" class="grid-2" style="margin-bottom: 1.5rem;"></div>
                                 
                                 <div class="friendly-adder">
@@ -522,7 +548,7 @@
                             <thead>
                                 <tr>
                                     <th>Client Organization</th>
-                                    <th>Author</th>
+                                    <th>Created By</th>
                                     <th>Type</th>
                                     <th style="width: 200px;">Actions</th>
                                 </tr>
@@ -568,9 +594,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // =========================================================
-        // YOUR FIREBASE CONFIGURATION
-        // =========================================================
         const firebaseConfig = {
             apiKey: "AIzaSyCTxIX_4kXpS1Iat8NebxhftQVsHZTh4UA",
             authDomain: "checklist-tracker-47ef8.firebaseapp.com",
@@ -580,12 +603,6 @@
             appId: "1:919807689503:web:208bb66c7faf1403b3662a",
             measurementId: "G-5H6FQNES8F"
         };
-
-        if (firebaseConfig.apiKey === "YOUR_API_KEY") {
-            const errDiv = document.getElementById('loginError');
-            errDiv.innerHTML = "<strong>Setup Incomplete:</strong> Paste your Firebase Config keys at the bottom of the HTML file.";
-            errDiv.style.display = 'block';
-        }
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
@@ -614,7 +631,7 @@
             const navBtn = document.getElementById('nav-' + viewId.split('-')[1]);
             if(navBtn) navBtn.classList.add('active');
 
-            const titles = { 'view-landing': 'Dashboard / Overview', 'view-form': 'Setup / Implementation Checklist', 'view-list': 'Database / Checklists', 'view-admin': 'System / Team Access', 'view-detail': 'Database / Blueprint Details', 'view-logs': 'System / Audit Logs' };
+            const titles = { 'view-landing': 'Dashboard / Overview', 'view-form': 'Setup / Create New Checklist', 'view-list': 'Database / Checklists', 'view-admin': 'System / Team Access', 'view-detail': 'Database / Checklist Details', 'view-logs': 'System / Audit Logs' };
             document.getElementById('breadcrumb').innerText = titles[viewId] || '';
 
             if(viewId === 'view-list') window.loadChecklists();
@@ -628,22 +645,17 @@
             if(!window.currentUser) return;
             try {
                 await addDoc(collection(db, "logs"), {
-                    action: action,
-                    userEmail: window.currentUser.email,
-                    userName: window.currentUser.name,
-                    details: details,
-                    timestamp: Date.now()
+                    action: action, userEmail: window.currentUser.email, userName: window.currentUser.name, details: details, timestamp: Date.now()
                 });
-            } catch(e) { console.error("Logging failed", e); }
+            } catch(e) {}
         }
 
         window.loadLogs = async () => {
             const tbody = document.getElementById('logsTableBody'); tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Loading logs...</td></tr>';
             try {
                 const snapshot = await getDocs(collection(db, "logs")); 
-                let logs = [];
-                snapshot.forEach(doc => logs.push(doc.data()));
-                logs.sort((a,b) => b.timestamp - a.timestamp); // Sort descending
+                let logs = []; snapshot.forEach(doc => logs.push(doc.data()));
+                logs.sort((a,b) => b.timestamp - a.timestamp); 
                 
                 tbody.innerHTML = '';
                 if(logs.length === 0) tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#94a3b8;">No activity logged yet.</td></tr>';
@@ -670,7 +682,7 @@
             try {
                 const snapshot = await getDocs(collection(db, "users"));
                 if (snapshot.empty) {
-                    await addDoc(collection(db, "users"), { name: "Master Admin", email: "revanth.abbati@dispatchtrack.com", password: "Create@32", role: "master", canEditAll: true });
+                    await addDoc(collection(db, "users"), { name: "Revanth Reddy Abbati", email: "revanth.abbati@dispatchtrack.com", password: "Create@32", role: "master", canEditAll: true });
                 }
             } catch(e) { console.error(e); }
         }
@@ -688,8 +700,16 @@
                 const snapshot = await getDocs(q);
                 
                 if (!snapshot.empty) {
-                    const userData = snapshot.docs[0].data();
-                    window.currentUser = { id: snapshot.docs[0].id, name: userData.name, email: userData.email, role: userData.role, canEditAll: userData.canEditAll || false };
+                    let userData = snapshot.docs[0].data();
+                    let docId = snapshot.docs[0].id;
+                    
+                    // Force fix for old "Master Admin" name cache in database
+                    if (userData.email === "revanth.abbati@dispatchtrack.com" && userData.name === "Master Admin") {
+                        await updateDoc(doc(db, "users", docId), { name: "Revanth Reddy Abbati" });
+                        userData.name = "Revanth Reddy Abbati";
+                    }
+
+                    window.currentUser = { id: docId, name: userData.name, email: userData.email, role: userData.role, canEditAll: userData.canEditAll || false };
                     
                     document.getElementById('view-login').style.display = 'none'; document.getElementById('appWrapper').style.display = 'flex';
                     document.getElementById('userNameDisplay').innerText = window.currentUser.name;
@@ -703,7 +723,7 @@
                     logAction('LOGIN', 'User signed into dashboard');
                     window.navigate('view-landing');
                 } else { errDiv.innerText = "Invalid credentials."; errDiv.style.display = 'block'; }
-            } catch (err) { errDiv.innerText = "Database connection error."; errDiv.style.display = 'block'; console.error(err);}
+            } catch (err) { errDiv.innerText = "Database connection error."; errDiv.style.display = 'block'; }
             document.getElementById('loginBtn').querySelector('span').style.display = 'block'; document.getElementById('loginLoader').style.display = 'none';
         });
 
@@ -712,8 +732,7 @@
             setTimeout(() => {
                 window.currentUser = null; document.getElementById('appWrapper').style.display = 'none';
                 document.getElementById('view-login').style.display = 'flex'; document.getElementById('loginForm').reset();
-                document.getElementById('nav-admin').style.display = 'none';
-                document.getElementById('nav-logs').style.display = 'none';
+                document.getElementById('nav-admin').style.display = 'none'; document.getElementById('nav-logs').style.display = 'none';
             }, 500);
         };
 
@@ -722,8 +741,7 @@
             e.preventDefault();
             try {
                 await addDoc(collection(db, "users"), { 
-                    name: document.getElementById('newUserName').value.trim(), 
-                    email: document.getElementById('newUserEmail').value.trim(), 
+                    name: document.getElementById('newUserName').value.trim(), email: document.getElementById('newUserEmail').value.trim(), 
                     password: document.getElementById('newUserPass').value.trim(), role: 'user', canEditAll: false
                 });
                 window.showToast("User added successfully!"); document.getElementById('createUserForm').reset(); window.loadUsers();
@@ -733,61 +751,48 @@
         window.loadUsers = async () => {
             const tbody = document.getElementById('usersTableBody'); tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Loading...</td></tr>';
             try {
-                const snapshot = await getDocs(collection(db, "users")); tbody.innerHTML = '';
-                window.allUsers = [];
+                const snapshot = await getDocs(collection(db, "users")); tbody.innerHTML = ''; window.allUsers = [];
                 snapshot.forEach(doc => window.allUsers.push({id: doc.id, ...doc.data()}));
                 
                 window.allUsers.forEach(u => { 
                     let roleBadge = u.role === 'master' ? '<span class="badge badge-master">MASTER</span>' : '<span class="badge badge-user">USER</span>';
                     let editBadge = u.canEditAll ? '<span class="badge badge-edit">GLOBAL EDIT</span>' : '';
                     
-                    let actions = `<button class="admin-action-btn" onclick="window.adminUserAction('${u.id}', 'password')">Password</button>`;
+                    let actions = `<div class="action-dropdown">
+                        <button class="action-btn"><svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg></button>
+                        <div class="action-menu">
+                            <button onclick="window.adminUserAction('${u.id}', 'password')">Change Password</button>`;
                     if(u.role !== 'master') {
-                        actions += `<button class="admin-action-btn" style="margin-left:4px;" onclick="window.adminUserAction('${u.id}', 'editPerm')">Toggle Edit</button>`;
-                        actions += `<button class="admin-action-btn" style="margin-left:4px;" onclick="window.adminUserAction('${u.id}', 'promote')">Promote</button>`;
-                        actions += `<button class="admin-action-btn" style="margin-left:4px; color:#ef4444; border-color:#fca5a5;" onclick="window.adminUserAction('${u.id}', 'delete')">Del</button>`;
+                        actions += `<button onclick="window.adminUserAction('${u.id}', 'editPerm')">Toggle Global Edit</button>
+                                    <button onclick="window.adminUserAction('${u.id}', 'promote')">Promote to Master</button>
+                                    <button class="del-btn" onclick="window.adminUserAction('${u.id}', 'delete')">Delete User</button>`;
                     }
-
-                    tbody.innerHTML += `<tr><td><strong>${u.name}</strong></td><td>${u.email}</td><td>${roleBadge}${editBadge}</td><td>${actions}</td></tr>`; 
+                    actions += `</div></div>`;
+                    tbody.innerHTML += `<tr><td><strong>${u.name}</strong></td><td>${u.email}</td><td>${roleBadge}${editBadge}</td><td style="text-align:center;">${actions}</td></tr>`; 
                 });
             } catch(e) {}
         };
 
         window.adminUserAction = async (id, actionType) => {
-            const user = window.allUsers.find(u => u.id === id);
-            if(!user) return;
-
+            const user = window.allUsers.find(u => u.id === id); if(!user) return;
             try {
                 if(actionType === 'password') {
                     const newPass = prompt(`Enter new password for ${user.name}:`);
-                    if(newPass && newPass.trim().length > 0) {
-                        await updateDoc(doc(db, "users", id), { password: newPass.trim() });
-                        window.showToast("Password updated!");
-                    }
+                    if(newPass && newPass.trim().length > 0) { await updateDoc(doc(db, "users", id), { password: newPass.trim() }); window.showToast("Password updated!"); }
                 } else if(actionType === 'editPerm') {
                     const newPerm = !user.canEditAll;
-                    if(confirm(`Set Global Edit Access to ${newPerm} for ${user.name}?`)) {
-                        await updateDoc(doc(db, "users", id), { canEditAll: newPerm });
-                        window.showToast("Permissions updated!"); window.loadUsers();
-                    }
+                    if(confirm(`Set Global Edit Access to ${newPerm} for ${user.name}?`)) { await updateDoc(doc(db, "users", id), { canEditAll: newPerm }); window.showToast("Permissions updated!"); window.loadUsers(); }
                 } else if(actionType === 'promote') {
-                    if(confirm(`Make ${user.name} a Master Admin?`)) {
-                        await updateDoc(doc(db, "users", id), { role: 'master', canEditAll: true });
-                        window.showToast("User promoted!"); window.loadUsers();
-                    }
+                    if(confirm(`Make ${user.name} a Master Admin?`)) { await updateDoc(doc(db, "users", id), { role: 'master', canEditAll: true }); window.showToast("User promoted!"); window.loadUsers(); }
                 } else if(actionType === 'delete') {
-                    if(confirm(`Permanently delete user ${user.name}?`)) {
-                        await deleteDoc(doc(db, "users", id));
-                        window.showToast("User deleted!"); window.loadUsers();
-                    }
+                    if(confirm(`Permanently delete user ${user.name}?`)) { await deleteDoc(doc(db, "users", id)); window.showToast("User deleted!"); window.loadUsers(); }
                 }
-            } catch(e) { alert("Action failed."); console.error(e);}
+            } catch(e) { alert("Action failed."); }
         };
 
         // --- FORM DYNAMICS ---
         window.toggleAccounts = (needed) => {
-            window.accountsNeeded = needed;
-            document.getElementById('accountsWrapper').style.display = needed ? 'block' : 'none';
+            window.accountsNeeded = needed; document.getElementById('accountsWrapper').style.display = needed ? 'block' : 'none';
             if(!needed) { window.formAccounts = []; window.renderTags('accountList', 'formAccounts'); }
         };
 
@@ -832,14 +837,22 @@
 
         window.saveForm = async () => {
             if(!document.getElementById('f_companyName').value.trim()) { alert("Client Name is required."); return; }
-
             const companyName = document.getElementById('f_companyName').value;
+            
+            // Get original author if editing, otherwise current user
+            let authorEmail = window.currentUser.email;
+            let authorName = window.currentUser.name;
+            if(window.editingRecordId) {
+                const existing = window.checklists.find(c => c.id === window.editingRecordId);
+                if(existing) { authorEmail = existing.authorEmail; authorName = existing.authorName; }
+            }
 
             const recordData = {
-                authorEmail: window.currentUser.email, authorName: window.currentUser.name, timestamp: Date.now(),
+                authorEmail: authorEmail, authorName: authorName, timestamp: Date.now(),
                 companyName: companyName, callDate: document.getElementById('f_callDate').value,
                 customerType: document.getElementById('f_customerType').value, website: document.getElementById('f_website').value, dtUrl: document.getElementById('f_dtUrl').value,
                 salesHandoffUrl: document.getElementById('f_salesHandoffUrl').value, salesPerson: document.getElementById('f_salesPerson').value, solutionsEngineer: document.getElementById('f_solutionsEngineer').value,
+                csmName: document.getElementById('f_csmName').value, cseName: document.getElementById('f_cseName').value,
                 accountsNeeded: window.accountsNeeded, accounts: [...window.formAccounts], timeZone: document.getElementById('f_timeZone').value,
                 address: { line1: document.getElementById('f_addr1').value, line2: document.getElementById('f_addr2').value, city: document.getElementById('f_city').value, state: document.getElementById('f_state').value, zip: document.getElementById('f_zip').value, country: document.getElementById('f_country').value },
                 phone: document.getElementById('f_phone').value, callback: document.getElementById('f_callback').value,
@@ -848,7 +861,8 @@
                 hasRouting: document.getElementById('f_hasRouting').value, routingProvider: document.getElementById('f_routingProvider').value, hasTelematics: document.getElementById('f_hasTelematics').value, telematicsProvider: document.getElementById('f_telematicsProvider').value,
                 importMethod: document.getElementById('f_importMethod').value, posSystem: document.getElementById('f_posSystem').value, importFreq: document.getElementById('f_importFreq').value,
                 optCubes: document.getElementById('f_optCubes').value, optPieces: document.getElementById('f_optPieces').value, optWeight: document.getElementById('f_optWeight').value, optCats: document.getElementById('f_optCats').value,
-                notifications: [...window.formNotifications], features: [...window.formFeatures], customFields: []
+                notifications: [...window.formNotifications], features: [...window.formFeatures], 
+                pendingItems: document.getElementById('f_pendingItems').value, additionalNotes: document.getElementById('f_additionalNotes').value, customFields: []
             };
 
             window.customFieldsDefinition.forEach(cf => { recordData.customFields.push({ label: cf.label, type: cf.type, value: document.getElementById(cf.id) ? document.getElementById(cf.id).value : '' }); });
@@ -857,8 +871,7 @@
                 if (window.editingRecordId) {
                     await updateDoc(doc(db, "checklists", window.editingRecordId), recordData);
                     logAction('UPDATE', `Updated checklist for ${companyName}`);
-                }
-                else {
+                } else {
                     await addDoc(collection(db, "checklists"), recordData);
                     logAction('CREATE', `Created checklist for ${companyName}`);
                 }
@@ -874,7 +887,7 @@
                 snapshot.forEach(doc => window.checklists.push({ id: doc.id, ...doc.data() })); window.checklists.sort((a,b) => b.timestamp - a.timestamp);
                 
                 document.getElementById('listLoader').style.display = 'none';
-                window.renderChecklistsTable(window.checklists); // Call dedicated render function
+                window.renderChecklistsTable(window.checklists);
             } catch(e) { document.getElementById('listLoader').style.display = 'none'; }
         };
 
@@ -889,11 +902,8 @@
         };
 
         window.renderChecklistsTable = (dataArray) => {
-            document.getElementById('dataTableWrapper').style.display = 'none';
-            document.getElementById('emptyState').style.display = 'none';
-            if (dataArray.length === 0) {
-                document.getElementById('emptyState').style.display = 'block';
-            } else {
+            document.getElementById('dataTableWrapper').style.display = 'none'; document.getElementById('emptyState').style.display = 'none';
+            if (dataArray.length === 0) { document.getElementById('emptyState').style.display = 'block'; } else {
                 document.getElementById('dataTableWrapper').style.display = 'table'; const tbody = document.getElementById('listTableBody'); tbody.innerHTML = '';
                 dataArray.forEach(item => {
                     const canEdit = window.currentUser.role === 'master' || window.currentUser.canEditAll || window.currentUser.email === item.authorEmail;
@@ -906,21 +916,20 @@
 
         window.deleteRecord = async (id, companyName) => { 
             if(confirm("Delete this checklist?")) { 
-                await deleteDoc(doc(db, "checklists", id)); 
-                logAction('DELETE', `Deleted checklist for ${companyName}`);
-                window.loadChecklists(); 
+                await deleteDoc(doc(db, "checklists", id)); logAction('DELETE', `Deleted checklist for ${companyName}`); window.loadChecklists(); 
             } 
         };
 
         window.loadEdit = (id) => {
             const r = window.checklists.find(c => c.id === id); if(!r) return; window.editingRecordId = id; document.getElementById('formHeaderTitle').innerText = "Edit Implementation Setup";
             document.getElementById('f_companyName').value = r.companyName; document.getElementById('f_callDate').value = r.callDate; document.getElementById('f_customerType').value = r.customerType; document.getElementById('f_website').value = r.website; document.getElementById('f_dtUrl').value = r.dtUrl;
-            document.getElementById('f_salesHandoffUrl').value = r.salesHandoffUrl||''; document.getElementById('f_salesPerson').value = r.salesPerson||''; document.getElementById('f_solutionsEngineer').value = r.solutionsEngineer||'';
+            document.getElementById('f_salesHandoffUrl').value = r.salesHandoffUrl||''; document.getElementById('f_salesPerson').value = r.salesPerson||''; document.getElementById('f_solutionsEngineer').value = r.solutionsEngineer||''; document.getElementById('f_csmName').value = r.csmName||''; document.getElementById('f_cseName').value = r.cseName||'';
             document.getElementById('f_timeZone').value = r.timeZone; document.getElementById('f_addr1').value = r.address?.line1||''; document.getElementById('f_addr2').value = r.address?.line2||''; document.getElementById('f_city').value = r.address?.city||''; document.getElementById('f_state').value = r.address?.state||''; document.getElementById('f_zip').value = r.address?.zip||''; document.getElementById('f_country').value = r.address?.country||'';
             document.getElementById('f_phone').value = r.phone; document.getElementById('f_callback').value = r.callback; document.getElementById('f_trucks').value = r.trucks; document.getElementById('f_runtime').value = r.runtime; document.getElementById('f_dcCount').value = r.dcCount; document.getElementById('f_goLive').value = r.goLive; document.getElementById('f_loginType').value = r.loginType;
             document.getElementById('f_hasRouting').value = r.hasRouting; document.getElementById('f_routingProvider').value = r.routingProvider; document.getElementById('f_hasTelematics').value = r.hasTelematics; document.getElementById('f_telematicsProvider').value = r.telematicsProvider;
             document.getElementById('f_importMethod').value = r.importMethod; document.getElementById('f_posSystem').value = r.posSystem; document.getElementById('f_importFreq').value = r.importFreq;
             document.getElementById('f_optCubes').value = r.optCubes; document.getElementById('f_optPieces').value = r.optPieces; document.getElementById('f_optWeight').value = r.optWeight; document.getElementById('f_optCats').value = r.optCats;
+            document.getElementById('f_pendingItems').value = r.pendingItems||''; document.getElementById('f_additionalNotes').value = r.additionalNotes||'';
             
             const rVal = r.accountsNeeded ? 'yes' : 'no'; document.querySelector(`input[name="needAccounts"][value="${rVal}"]`).checked = true; window.toggleAccounts(r.accountsNeeded);
             window.toggleField('f_hasRouting', 'cond_routing', 'Yes'); window.toggleField('f_hasTelematics', 'cond_telematics', 'Yes'); window.handleImportToggle();
@@ -932,14 +941,22 @@
             window.navigate('view-form');
         };
 
-        // --- DETAIL VIEW & EXPORTS ---
+        // --- DETAIL VIEW & THEMATIC EXPORTS ---
         window.viewRecord = (id) => {
-            const r = window.checklists.find(c => c.id === id); if(!r) return; document.getElementById('d_title').innerText = r.companyName; window.editingRecordId = id; // reuse var for export
+            const r = window.checklists.find(c => c.id === id); if(!r) return; document.getElementById('d_title').innerText = r.companyName; window.editingRecordId = id; 
+            
+            let tColor = '#4f46e5'; 
+            if(r.customerType === 'B2B') tColor = '#059669'; 
+            if(r.customerType === 'DTV') tColor = '#d97706'; 
+            if(r.customerType === 'DTB') tColor = '#e11d48'; 
+            document.documentElement.style.setProperty('--theme-color', tColor);
+
+            const linkify = (url) => url ? `<a href="${url}" target="_blank">${url}</a>` : '—';
             const row = (l, v) => `<div class="detail-row"><div class="detail-label">${l}</div><div class="detail-val">${v||'—'}</div></div>`;
             const addr = [r.address?.line1, r.address?.line2, r.address?.city, r.address?.state, r.address?.zip, r.address?.country].filter(Boolean).join(', ');
             
-            let html = `<div style="text-align:center; margin-bottom:2.5rem; padding-bottom:2rem; border-bottom: 2px solid #f1f5f9;"><h2 style="font-size:2rem; color:var(--primary); font-family:'Outfit',sans-serif; margin-bottom:0.5rem;">Implementation Blueprint</h2><p style="color:var(--text-muted);">Authored by ${r.authorName}</p></div>
-                <div class="detail-group"><h3>General Details</h3>${row('Client Name', r.companyName)}${row('Kick-off Date', r.callDate)}${row('Type', r.customerType)}${row('Website', r.website)}${row('Setup URL', r.dtUrl)}${row('Sales Hand-off', r.salesHandoffUrl)}${row('Sales Person', r.salesPerson)}${row('Solutions Engineer', r.solutionsEngineer)}</div>
+            let html = `<div style="text-align:center; margin-bottom:2.5rem; padding-bottom:2rem; border-bottom: 2px solid #f1f5f9;"><h2 style="font-size:2rem; color:var(--theme-color); font-family:'Outfit',sans-serif; margin-bottom:0.5rem;">Kick Off Checklist</h2><p style="color:var(--text-muted);">Created by ${r.authorName}</p></div>
+                <div class="detail-group"><h3>General Details</h3>${row('Client Name', r.companyName)}${row('Kick-off Date', r.callDate)}${row('Type', r.customerType)}${row('Website', linkify(r.website))}${row('Setup URL', r.dtUrl)}${row('Sales Hand-off', linkify(r.salesHandoffUrl))}${row('Sales Person', r.salesPerson)}${row('Solutions Engineer', r.solutionsEngineer)}${row('CSM Name', r.csmName)}${row('CSE Name', r.cseName)}</div>
                 <div class="detail-group"><h3>Locale & Accounts</h3>${r.accountsNeeded ? row('Accounts', (r.accounts||[]).join(', ')) : row('Accounts', 'Not required')}${row('Time Zone', r.timeZone)}${row('Address', addr)}${row('Phone', r.phone)}${row('Callback', r.callback)}</div>
                 <div class="detail-group"><h3>Operations</h3>${row('Services', (r.services||[]).join(', '))}${row('Trucks', r.trucks)}${row('Run Time', r.runtime)}${row('DC Count', r.dcCount)}${row('Go-Live', r.goLive)}${row('Login Type', r.loginType)}${r.hasRouting==='Yes'?row('Legacy Routing',r.routingProvider):''}${r.hasTelematics==='Yes'?row('Telematics',r.telematicsProvider):''}</div>
                 <div class="detail-group"><h3>Data & Routing</h3>${row('Import', r.importMethod)}${row('POS/Notes', r.posSystem)}${row('Freq', r.importFreq)}${row('Cubes Limit', r.optCubes)}${row('Pieces Limit', r.optPieces)}${row('Weight Limit', r.optWeight)}${row('Categories', r.optCats)}</div>`;
@@ -949,14 +966,16 @@
                 if(r.features?.length) html += row('Features', '<ul style="padding-left:20px;margin:0;">'+r.features.map(f=>`<li>${f}</li>`).join('')+'</ul>');
                 html += `</div>`;
             }
+            if(r.pendingItems || r.additionalNotes) { html += `<div class="detail-group"><h3>Review & Notes</h3>${row('Pending Items', r.pendingItems.replace(/\n/g, '<br>'))}${row('Additional Notes', r.additionalNotes.replace(/\n/g, '<br>'))}</div>`;}
             if(r.customFields?.length) { html += `<div class="detail-group"><h3>Extra Details</h3>`; r.customFields.forEach(cf => html += row(cf.label, cf.value)); html += `</div>`; }
             document.getElementById('exportContent').innerHTML = html; window.navigate('view-detail');
         };
 
-        window.exportPDF = () => { html2pdf().set({ margin: 15, filename: `Blueprint.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(document.getElementById('exportContent')).save(); };
+        window.exportPDF = () => { html2pdf().set({ margin: 15, filename: `Kick_Off_Checklist.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(document.getElementById('exportContent')).save(); };
         window.exportDOCX = () => { 
-            const html = "<html xmlns:w='urn:schemas-microsoft-com:office:word'><head><style>body{font-family:Arial;} h2{color:#4f46e5; text-align:center;} h3{border-bottom:1px solid #ccc; margin-top:20px; padding-bottom:5px;} .detail-row{margin-bottom:8px;} .detail-label{font-weight:bold; color:#475569;}</style></head><body>" + document.getElementById('exportContent').innerHTML + "</body></html>";
-            const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\ufeff', html], { type: 'application/msword' })); a.download = 'Blueprint.doc'; a.click(); 
+            const tColor = document.documentElement.style.getPropertyValue('--theme-color') || '#4f46e5';
+            const html = `<html xmlns:w='urn:schemas-microsoft-com:office:word'><head><style>body{font-family:Arial;} h2{color:${tColor}; text-align:center;} h3{color:${tColor}; border-bottom:1px solid #ccc; margin-top:20px; padding-bottom:5px;} .detail-row{margin-bottom:8px;} .detail-label{font-weight:bold; color:#475569;} a{color:${tColor};}</style></head><body>` + document.getElementById('exportContent').innerHTML + "</body></html>";
+            const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\ufeff', html], { type: 'application/msword' })); a.download = 'Kick_Off_Checklist.doc'; a.click(); 
         };
     </script>
 </body>
