@@ -57,7 +57,7 @@
         .user-profile { display: flex; align-items: center; gap: 12px; color: white; margin-bottom: 1.25rem; }
         .avatar { width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
         
-        .main-wrapper { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; position: relative; padding-bottom: 50px;} /* padding for footer */
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; position: relative; padding-bottom: 50px;} 
         .topbar { height: 80px; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 2.5rem; z-index: 10; }
         .topbar-title { font-weight: 600; color: var(--text-muted); font-size: 0.95rem; }
         .content-area { flex: 1; overflow-y: auto; padding: 2.5rem; scroll-behavior: smooth; position: relative; }
@@ -333,6 +333,11 @@
                                     <div class="form-group full"><label>DT Instance URL</label><input type="text" class="form-control" id="f_dtUrl" placeholder="e.g. acme.dispatchtrack.com" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
                                 </div>
                                 <div class="grid-3" style="margin-top: 1.75rem; padding-top: 1.75rem; border-top: 1px dashed var(--border);">
+                                    <div class="form-group"><label>Activation Code</label><input type="text" class="form-control" id="f_activationCode" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
+                                    <div class="form-group"><label>Customer Name</label><input type="text" class="form-control" id="f_customerName" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
+                                    <div class="form-group"><label>Customer Email</label><input type="email" class="form-control" id="f_customerEmail" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
+                                </div>
+                                <div class="grid-3" style="margin-top: 1.75rem;">
                                     <div class="form-group"><label>Sales Hand-off URL</label><input type="url" class="form-control" id="f_salesHandoffUrl" placeholder="Link to CRM/Notes" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
                                     <div class="form-group"><label>Sales Person</label><input type="text" class="form-control" id="f_salesPerson" placeholder="Name" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
                                     <div class="form-group"><label>Solutions Engineer</label><input type="text" class="form-control" id="f_solutionsEngineer" placeholder="Name" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>
@@ -404,7 +409,7 @@
                                 <div class="form-group full" style="margin-bottom: 2rem;">
                                     <label>Service Types Offered</label>
                                     <div class="input-with-btn">
-                                        <input type="text" class="form-control" id="serviceInput" placeholder="e.g. White Glove, Threshold (Press Enter to add)" onkeydown="if(event.key === 'Enter') { event.preventDefault(); window.addTag('serviceList', 'serviceInput', 'formServices'); }">
+                                        <input type="text" class="form-control" id="serviceInput" placeholder="e.g. White Glove, Threshold (Press Enter)" onkeydown="if(event.key === 'Enter') { event.preventDefault(); window.addTag('serviceList', 'serviceInput', 'formServices'); }">
                                         <button type="button" class="btn btn-primary" onclick="window.addTag('serviceList', 'serviceInput', 'formServices')">Add</button>
                                     </div>
                                     <div id="serviceList" class="tags-container"></div>
@@ -533,10 +538,14 @@
                         <div class="page-header">
                             <div>
                                 <h1>Archived Checklists</h1>
-                                <p>Manage and export your implementation blueprints.</p>
+                                <p>Manage, restore, and export your implementation blueprints.</p>
                             </div>
                             <div style="display: flex; gap: 1rem; align-items: center;">
                                 <input type="text" id="searchInput" class="search-bar" placeholder="Search client or author..." onkeyup="window.filterChecklists()" onkeydown="if(event.key === 'Enter') event.preventDefault();">
+                                <button class="btn btn-outline" onclick="window.triggerDocImport()">Import Word (.doc)</button>
+                                <button class="btn btn-outline" onclick="window.triggerJSONImport()">Import Backup (.json)</button>
+                                <input type="file" id="jsonImportInput" accept=".json" style="display:none;" onchange="window.handleJSONImport(event)">
+                                <input type="file" id="docImportInput" accept=".doc" style="display:none;" onchange="window.handleDocImport(event)">
                                 <button class="btn btn-primary" onclick="window.navigate('view-form')">+ New Setup</button>
                             </div>
                         </div>
@@ -570,6 +579,7 @@
                                 <h1 id="d_title">Company Name</h1>
                             </div>
                             <div style="display: flex; gap: 1rem;">
+                                <button class="btn btn-outline" style="border-color:#10b981; color:#10b981;" onclick="window.exportJSON()">Download Backup (.json)</button>
                                 <button class="btn btn-outline" onclick="window.exportPDF()">Export PDF</button>
                                 <button class="btn btn-primary" onclick="window.exportDOCX()">Export Word</button>
                             </div>
@@ -630,7 +640,7 @@
             const navBtn = document.getElementById('nav-' + viewId.split('-')[1]);
             if(navBtn) navBtn.classList.add('active');
 
-            const titles = { 'view-landing': 'Dashboard / Overview', 'view-form': 'Setup / Create New Checklist', 'view-list': 'Database / Checklists', 'view-admin': 'System / Team Access', 'view-detail': 'Database / Checklist Details', 'view-logs': 'System / Audit Logs' };
+            const titles = { 'view-landing': 'Dashboard / Overview', 'view-form': 'Setup / Implementation Checklist', 'view-list': 'Database / Checklists', 'view-admin': 'System / Team Access', 'view-detail': 'Database / Blueprint Details', 'view-logs': 'System / Audit Logs' };
             document.getElementById('breadcrumb').innerText = titles[viewId] || '';
 
             if(viewId === 'view-list') window.loadChecklists();
@@ -646,6 +656,20 @@
                 await addDoc(collection(db, "logs"), {
                     action: action, userEmail: window.currentUser.email, userName: window.currentUser.name, details: details, timestamp: Date.now()
                 });
+            } catch(e) {}
+        }
+        
+        async function saveVersionHistory(recordId) {
+            try {
+                const q = query(collection(db, "checklists"), where("__name__", "==", recordId));
+                const snap = await getDocs(q);
+                if(!snap.empty) {
+                    let oldData = snap.docs[0].data();
+                    oldData.originalId = recordId;
+                    oldData.archivedAt = Date.now();
+                    oldData.archivedBy = window.currentUser.name;
+                    await addDoc(collection(db, "checklists_history"), oldData);
+                }
             } catch(e) {}
         }
 
@@ -683,7 +707,7 @@
                 if (snapshot.empty) {
                     await addDoc(collection(db, "users"), { name: "Revanth Reddy Abbati", email: "revanth.abbati@dispatchtrack.com", password: "Create@32", role: "master", canEditAll: true });
                 }
-            } catch(e) { console.error(e); }
+            } catch(e) {}
         }
 
         document.getElementById('loginBtn').addEventListener('click', async (e) => {
@@ -741,7 +765,7 @@
                     password: document.getElementById('newUserPass').value.trim(), role: 'user', canEditAll: false
                 });
                 window.showToast("User added successfully!"); document.getElementById('createUserForm').reset(); window.loadUsers();
-            } catch(err) { alert("Error adding user to database."); }
+            } catch(err) { alert("Error adding user."); }
         });
 
         window.loadUsers = async () => {
@@ -837,16 +861,16 @@
             
             let authorEmail = window.currentUser.email;
             let authorName = window.currentUser.name;
-            
             if(window.editingRecordId) {
                 const existing = window.checklists.find(c => c.id === window.editingRecordId);
                 if(existing) { authorEmail = existing.authorEmail; authorName = existing.authorName; }
             }
 
             const recordData = {
-                authorEmail: authorEmail || "Unknown", authorName: authorName || "Unknown", timestamp: Date.now(),
+                authorEmail: authorEmail, authorName: authorName, timestamp: Date.now(),
                 companyName: companyName, callDate: document.getElementById('f_callDate').value,
                 customerType: document.getElementById('f_customerType').value, website: document.getElementById('f_website').value, dtUrl: document.getElementById('f_dtUrl').value,
+                activationCode: document.getElementById('f_activationCode').value, customerName: document.getElementById('f_customerName').value, customerEmail: document.getElementById('f_customerEmail').value,
                 salesHandoffUrl: document.getElementById('f_salesHandoffUrl').value, salesPerson: document.getElementById('f_salesPerson').value, solutionsEngineer: document.getElementById('f_solutionsEngineer').value,
                 csmName: document.getElementById('f_csmName').value, cseName: document.getElementById('f_cseName').value,
                 accountsNeeded: window.accountsNeeded, accounts: [...window.formAccounts], timeZone: document.getElementById('f_timeZone').value,
@@ -865,6 +889,7 @@
 
             try {
                 if (window.editingRecordId) {
+                    await saveVersionHistory(window.editingRecordId);
                     await updateDoc(doc(db, "checklists", window.editingRecordId), recordData);
                     logAction('UPDATE', `Updated checklist for ${companyName}`);
                 } else {
@@ -875,6 +900,139 @@
                 window.editingRecordId = null; 
                 window.navigate('view-list');
             } catch(e) { console.error(e); alert("Error saving."); }
+        };
+
+        // --- JSON & DOC IMPORT / BACKUP ---
+        window.exportJSON = () => {
+            const r = window.checklists.find(c => c.id === window.editingRecordId);
+            if(!r) return;
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(r));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `${r.companyName.replace(/\s+/g, '_')}_Backup.json`);
+            dlAnchorElem.click();
+        };
+
+        window.triggerJSONImport = () => { document.getElementById('jsonImportInput').click(); };
+        window.handleJSONImport = (event) => {
+            const file = event.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    delete data.id; 
+                    data.timestamp = Date.now(); 
+                    data.authorEmail = window.currentUser.email;
+                    data.authorName = window.currentUser.name;
+                    await addDoc(collection(db, "checklists"), data);
+                    logAction('CREATE', `Imported JSON checklist for ${data.companyName}`);
+                    window.showToast("Backup Imported Successfully!");
+                    window.loadChecklists();
+                } catch(err) { alert("Invalid JSON Backup file."); }
+            };
+            reader.readAsText(file);
+        };
+
+        window.triggerDocImport = () => { document.getElementById('docImportInput').click(); };
+        window.handleDocImport = (event) => {
+            const file = event.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const parser = new DOMParser();
+                    const docHtml = parser.parseFromString(e.target.result, "text/html");
+                    
+                    const ext = (label, isUrl = false) => {
+                        const rows = docHtml.querySelectorAll('.detail-row');
+                        for(let r of rows) {
+                            const l = r.querySelector('.detail-label');
+                            if(l && l.textContent.trim().replace(':','') === label) {
+                                const v = r.querySelector('.detail-val');
+                                if(!v) return "";
+                                if(isUrl) {
+                                    const a = v.querySelector('a');
+                                    if(a) return a.getAttribute('href');
+                                }
+                                if(v.querySelector('ul')) {
+                                    return Array.from(v.querySelectorAll('li')).map(li => li.textContent.trim());
+                                }
+                                let text = v.innerHTML.replace(/<br\s*[\/]?>/gi, '\n');
+                                text = text.replace(/<[^>]*>?/gm, '');
+                                return text.replace('—','').trim();
+                            }
+                        }
+                        return "";
+                    };
+
+                    const extList = (valStr) => {
+                        if(!valStr || valStr === 'Not required') return [];
+                        return valStr.split(',').map(s=>s.trim()).filter(Boolean);
+                    };
+
+                    const accountsStr = ext('Accounts');
+                    const servicesStr = ext('Services');
+                    
+                    const importedData = {
+                        authorEmail: window.currentUser.email,
+                        authorName: window.currentUser.name,
+                        timestamp: Date.now(),
+                        companyName: ext('Client Name'),
+                        callDate: ext('Kick-off Date'),
+                        customerType: ext('Type'),
+                        website: ext('Website', true),
+                        dtUrl: ext('Setup URL', true),
+                        activationCode: ext('Activation Code'),
+                        customerName: ext('Customer Name'),
+                        customerEmail: ext('Customer Email'),
+                        salesHandoffUrl: ext('Sales Hand-off', true),
+                        salesPerson: ext('Sales Person'),
+                        solutionsEngineer: ext('Solutions Engineer'),
+                        csmName: ext('CSM Name'),
+                        cseName: ext('CSE Name'),
+                        accountsNeeded: accountsStr && accountsStr !== 'Not required',
+                        accounts: extList(accountsStr),
+                        timeZone: ext('Time Zone'),
+                        address: { line1: ext('Address'), line2: '', city: '', state: '', zip: '', country: '' }, 
+                        phone: ext('Phone'),
+                        callback: ext('Callback'),
+                        services: extList(servicesStr),
+                        trucks: ext('Trucks'),
+                        runtime: ext('Run Time'),
+                        dcCount: ext('DC Count'),
+                        goLive: ext('Go-Live'),
+                        loginType: ext('Login Type'),
+                        routingProvider: ext('Legacy Routing'),
+                        hasRouting: ext('Legacy Routing') ? 'Yes' : 'No',
+                        telematicsProvider: ext('Telematics'),
+                        hasTelematics: ext('Telematics') ? 'Yes' : 'No',
+                        importMethod: ext('Import'),
+                        posSystem: ext('POS/Notes'),
+                        importFreq: ext('Freq'),
+                        optCubes: ext('Cubes Limit'),
+                        optPieces: ext('Pieces Limit'),
+                        optWeight: ext('Weight Limit'),
+                        optCats: ext('Categories'),
+                        notifications: ext('Notifications') || [],
+                        features: ext('Features') || [],
+                        pendingItems: ext('Pending Items'),
+                        additionalNotes: ext('Additional Notes'),
+                        customFields: []
+                    };
+
+                    if(!importedData.companyName) throw new Error("Could not find Client Name in document.");
+
+                    await addDoc(collection(db, "checklists"), importedData);
+                    logAction('CREATE', `Imported Word checklist for ${importedData.companyName}`);
+                    window.showToast("Word Document Imported Successfully!");
+                    window.loadChecklists();
+                } catch(err) { 
+                    console.error(err);
+                    alert("Failed to parse Word Document. Make sure it is an original export from this system."); 
+                }
+            };
+            reader.readAsText(file);
         };
 
         // --- LIST & SEARCH OPERATIONS ---
@@ -914,6 +1072,7 @@
 
         window.deleteRecord = async (id, companyName) => { 
             if(confirm("Delete this checklist?")) { 
+                await saveVersionHistory(id);
                 await deleteDoc(doc(db, "checklists", id)); logAction('DELETE', `Deleted checklist for ${companyName}`); window.loadChecklists(); 
             } 
         };
@@ -921,6 +1080,7 @@
         window.loadEdit = (id) => {
             const r = window.checklists.find(c => c.id === id); if(!r) return; window.editingRecordId = id; document.getElementById('formHeaderTitle').innerText = "Edit Implementation Setup";
             document.getElementById('f_companyName').value = r.companyName; document.getElementById('f_callDate').value = r.callDate; document.getElementById('f_customerType').value = r.customerType; document.getElementById('f_website').value = r.website; document.getElementById('f_dtUrl').value = r.dtUrl;
+            document.getElementById('f_activationCode').value = r.activationCode||''; document.getElementById('f_customerName').value = r.customerName||''; document.getElementById('f_customerEmail').value = r.customerEmail||'';
             document.getElementById('f_salesHandoffUrl').value = r.salesHandoffUrl||''; document.getElementById('f_salesPerson').value = r.salesPerson||''; document.getElementById('f_solutionsEngineer').value = r.solutionsEngineer||''; document.getElementById('f_csmName').value = r.csmName||''; document.getElementById('f_cseName').value = r.cseName||'';
             document.getElementById('f_timeZone').value = r.timeZone; document.getElementById('f_addr1').value = r.address?.line1||''; document.getElementById('f_addr2').value = r.address?.line2||''; document.getElementById('f_city').value = r.address?.city||''; document.getElementById('f_state').value = r.address?.state||''; document.getElementById('f_zip').value = r.address?.zip||''; document.getElementById('f_country').value = r.address?.country||'';
             document.getElementById('f_phone').value = r.phone; document.getElementById('f_callback').value = r.callback; document.getElementById('f_trucks').value = r.trucks; document.getElementById('f_runtime').value = r.runtime; document.getElementById('f_dcCount').value = r.dcCount; document.getElementById('f_goLive').value = r.goLive; document.getElementById('f_loginType').value = r.loginType;
@@ -954,9 +1114,9 @@
             const addr = [r.address?.line1, r.address?.line2, r.address?.city, r.address?.state, r.address?.zip, r.address?.country].filter(Boolean).join(', ');
             
             let html = `<div style="text-align:center; margin-bottom:2.5rem; padding-bottom:2rem; border-bottom: 2px solid #f1f5f9;"><h2 style="font-size:2rem; color:var(--theme-color); font-family:'Outfit',sans-serif; margin-bottom:0.5rem;">Kick Off Checklist</h2><p style="color:var(--text-muted);">Created by ${r.authorName}</p></div>
-                <div class="detail-group"><h3>General Details</h3>${row('Client Name', r.companyName)}${row('Kick-off Date', r.callDate)}${row('Type', r.customerType)}${row('Website', linkify(r.website))}${row('Setup URL', linkify(r.dtUrl))}${row('Sales Hand-off', linkify(r.salesHandoffUrl, r.companyName + ' - Sales Handoff'))}${row('Sales Person', r.salesPerson)}${row('Solutions Engineer', r.solutionsEngineer)}${row('CSM Name', r.csmName)}${row('CSE Name', r.cseName)}</div>
+                <div class="detail-group"><h3>General Details</h3>${row('Client Name', r.companyName)}${row('Kick-off Date', r.callDate)}${row('Type', r.customerType)}${row('Website', linkify(r.website))}${row('Setup URL', linkify(r.dtUrl))}${row('Activation Code', r.activationCode)}${row('Customer Name', r.customerName)}${row('Customer Email', r.customerEmail)}${row('Sales Hand-off', linkify(r.salesHandoffUrl, r.companyName + ' - Sales Handoff'))}${row('Sales Person', r.salesPerson)}${row('Solutions Engineer', r.solutionsEngineer)}${row('CSM Name', r.csmName)}${row('CSE Name', r.cseName)}</div>
                 <div class="detail-group"><h3>Accounts and Business Information</h3>${r.accountsNeeded ? row('Accounts', (r.accounts||[]).join(', ')) : row('Accounts', 'Not required')}${row('Time Zone', r.timeZone)}${row('Address', addr)}${row('Phone', r.phone)}${row('Callback', r.callback)}</div>
-                <div class="detail-group"><h3>Operations</h3>${row('Services', (r.services||[]).join(', '))}${row('Trucks', r.trucks)}${row('Run Time', r.runtime)}${row('Distribution Centers Count', r.dcCount)}${row('Go-Live', r.goLive)}${row('Login Type', r.loginType)}${r.hasRouting==='Yes'?row('Legacy Routing',r.routingProvider):''}${r.hasTelematics==='Yes'?row('Telematics',r.telematicsProvider):''}</div>
+                <div class="detail-group"><h3>Operations</h3>${row('Services', (r.services||[]).join(', '))}${row('Trucks', r.trucks)}${row('Run Time', r.runtime)}${row('DC Count', r.dcCount)}${row('Go-Live', r.goLive)}${row('Login Type', r.loginType)}${r.hasRouting==='Yes'?row('Legacy Routing',r.routingProvider):''}${r.hasTelematics==='Yes'?row('Telematics',r.telematicsProvider):''}</div>
                 <div class="detail-group"><h3>Data & Routing</h3>${row('Import', r.importMethod)}${row('POS/Notes', r.posSystem)}${row('Freq', r.importFreq)}${row('Cubes Limit', r.optCubes)}${row('Pieces Limit', r.optPieces)}${row('Weight Limit', r.optWeight)}${row('Categories', r.optCats)}</div>`;
             if(r.notifications?.length || r.features?.length) {
                 html += `<div class="detail-group"><h3>Add-ons</h3>`;
@@ -969,11 +1129,12 @@
             document.getElementById('exportContent').innerHTML = html; window.navigate('view-detail');
         };
 
-        window.exportPDF = () => { html2pdf().set({ margin: 15, filename: `Kick_Off_Checklist.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(document.getElementById('exportContent')).save(); };
+        window.exportPDF = () => { const rName = document.getElementById('d_title').innerText.replace(/\s+/g, '_'); html2pdf().set({ margin: 15, filename: `${rName}_KickoffChecklist.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(document.getElementById('exportContent')).save(); };
         window.exportDOCX = () => { 
+            const rName = document.getElementById('d_title').innerText.replace(/\s+/g, '_');
             const tColor = document.documentElement.style.getPropertyValue('--theme-color') || '#4f46e5';
             const html = `<html xmlns:w='urn:schemas-microsoft-com:office:word'><head><style>body{font-family:Arial;} h2{color:${tColor}; text-align:center;} h3{color:${tColor}; border-bottom:1px solid #ccc; margin-top:20px; padding-bottom:5px;} .detail-row{margin-bottom:8px;} .detail-label{font-weight:bold; color:#475569;} a{color:${tColor}; word-break: break-all;}</style></head><body>` + document.getElementById('exportContent').innerHTML + "</body></html>";
-            const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\ufeff', html], { type: 'application/msword' })); a.download = 'Kick_Off_Checklist.doc'; a.click(); 
+            const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\ufeff', html], { type: 'application/msword' })); a.download = `${rName}_KickoffChecklist.doc`; a.click(); 
         };
     </script>
 </body>
