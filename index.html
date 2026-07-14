@@ -90,6 +90,11 @@
         .form-group.full { grid-column: 1 / -1; }
         .form-group label { font-size: 0.85rem; font-weight: 700; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.05em; }
 
+        .custom-field-group { background: var(--bg-main); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem 1rem 1rem; }
+        .custom-field-group label { padding-right: 1.75rem; }
+        .remove-field-btn { position: absolute; top: 0.85rem; right: 0.85rem; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); font-size: 0.9rem; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; transition: var(--transition); }
+        .remove-field-btn:hover { background: var(--danger-light); border-color: #fca5a5; color: var(--danger); }
+
         .form-control { width: 100%; padding: 0.85rem 1.25rem; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 0.95rem; color: var(--text-main); background-color: var(--bg-main); transition: var(--transition); font-weight: 500; appearance: none; font-family: inherit; }
         textarea.form-control { resize: vertical; min-height: 80px;}
         select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1.25rem center; background-size: 1rem; padding-right: 3rem; }
@@ -128,15 +133,22 @@
         .empty-state { text-align: center; padding: 5rem 2rem; background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); border: 1px dashed #cbd5e1;}
         .empty-state svg { margin-bottom: 1rem; color: #cbd5e1; }
 
-        .action-dropdown { position: relative; display: inline-block; }
         .action-btn { background: var(--bg-main); border: 1px solid var(--border); border-radius: var(--radius-sm); width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); transition: var(--transition); }
         .action-btn:hover { background: #e2e8f0; color: var(--text-main); }
-        .action-menu { display: none; position: absolute; right: 0; top: 100%; background: white; min-width: 160px; box-shadow: var(--shadow-float); border-radius: var(--radius-md); border: 1px solid var(--border); z-index: 100; overflow: hidden; margin-top: 4px;}
-        .action-dropdown:hover .action-menu, .action-menu.show { display: block; }
-        .action-menu button { display: block; width: 100%; text-align: left; padding: 0.75rem 1rem; border: none; background: white; cursor: pointer; font-size: 0.85rem; font-weight: 500; font-family: inherit; color: var(--text-main); transition: background 0.2s;}
-        .action-menu button:hover { background: var(--bg-main); }
-        .action-menu button.del-btn { color: var(--danger); border-top: 1px solid var(--bg-main);}
-        .action-menu button.del-btn:hover { background: var(--danger-light); }
+        .action-btn.active-trigger { background: var(--primary-light); color: var(--primary); border-color: var(--primary-light); }
+
+        /* Floating actions menu: a single shared element positioned via JS, so it always
+           escapes table/card overflow clipping (this is what fixed the "last row" bug) */
+        .action-menu-floating { display: none; position: fixed; min-width: 220px; background: white; box-shadow: var(--shadow-float); border-radius: var(--radius-md); border: 1px solid var(--border); z-index: 500; padding: 6px; }
+        .action-menu-floating.show { display: block; animation: menuPop 0.14s ease-out; }
+        .action-menu-floating button { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 0.7rem 0.85rem; border: none; background: transparent; cursor: pointer; font-size: 0.85rem; font-weight: 600; font-family: inherit; color: var(--text-main); border-radius: var(--radius-sm); transition: background 0.15s;}
+        .action-menu-floating button svg { flex-shrink: 0; color: var(--text-muted); transition: color 0.15s; }
+        .action-menu-floating button:hover { background: var(--bg-main); }
+        .action-menu-floating button.del-btn { color: var(--danger); }
+        .action-menu-floating button.del-btn svg { color: var(--danger); }
+        .action-menu-floating button.del-btn:hover { background: var(--danger-light); }
+        .action-menu-divider { height: 1px; background: var(--border); margin: 6px 6px; }
+        @keyframes menuPop { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
         
         /* DETAIL VIEW */
         .detail-content { background: var(--surface); padding: 4rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-float); border: 1px solid var(--border);}
@@ -623,6 +635,26 @@
         </div>
     </div>
 
+    <div id="userActionMenu" class="action-menu-floating">
+        <button type="button" onclick="window.runUserAction('password')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+            Change Password
+        </button>
+        <button type="button" id="uamEditPerm" onclick="window.runUserAction('editPerm')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <span id="uamEditPermLabel">Grant Global Edit</span>
+        </button>
+        <button type="button" id="uamPromote" onclick="window.runUserAction('promote')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+            Promote to Master
+        </button>
+        <div class="action-menu-divider" id="uamDivider"></div>
+        <button type="button" class="del-btn" id="uamDelete" onclick="window.runUserAction('delete')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+            Delete User
+        </button>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
@@ -802,16 +834,7 @@
                     let roleBadge = u.role === 'master' ? '<span class="badge badge-master">MASTER</span>' : '<span class="badge badge-user">USER</span>';
                     let editBadge = u.canEditAll ? '<span class="badge badge-edit">GLOBAL EDIT</span>' : '';
                     
-                    let actions = `<div class="action-dropdown">
-                        <button class="action-btn"><svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg></button>
-                        <div class="action-menu">
-                            <button onclick="window.adminUserAction('${u.id}', 'password')">Change Password</button>`;
-                    if(u.role !== 'master') {
-                        actions += `<button onclick="window.adminUserAction('${u.id}', 'editPerm')">Toggle Global Edit</button>
-                                    <button onclick="window.adminUserAction('${u.id}', 'promote')">Promote to Master</button>
-                                    <button class="del-btn" onclick="window.adminUserAction('${u.id}', 'delete')">Delete User</button>`;
-                    }
-                    actions += `</div></div>`;
+                    let actions = `<button class="action-btn" title="Actions" onclick="window.toggleUserActionMenu(event, '${u.id}')"><svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg></button>`;
                     tbody.innerHTML += `<tr><td><strong>${u.name}</strong></td><td>${u.email}</td><td>${roleBadge}${editBadge}</td><td style="text-align:center;">${actions}</td></tr>`; 
                 });
             } catch(e) {}
@@ -834,7 +857,61 @@
             } catch(e) { alert("Action failed."); }
         };
 
-        // --- FORM DYNAMICS ---
+        // --- SHARED FLOATING ACTION MENU (Team Access) ---
+        // One menu element, positioned via JS on open, so it always escapes the table's
+        // rounded-corner overflow clipping — this is what was hiding it for the last row.
+        window.userActionMenuTarget = null;
+
+        window.toggleUserActionMenu = (event, id) => {
+            event.stopPropagation();
+            const btn = event.currentTarget;
+            const menu = document.getElementById('userActionMenu');
+            const reopening = menu.classList.contains('show') && window.userActionMenuTarget === id;
+
+            window.closeUserActionMenu();
+            if(reopening) return;
+
+            const user = window.allUsers.find(u => u.id === id); if(!user) return;
+            window.userActionMenuTarget = id;
+
+            const isMaster = user.role === 'master';
+            document.getElementById('uamEditPerm').style.display = isMaster ? 'none' : 'flex';
+            document.getElementById('uamPromote').style.display = isMaster ? 'none' : 'flex';
+            document.getElementById('uamDelete').style.display = isMaster ? 'none' : 'flex';
+            document.getElementById('uamDivider').style.display = isMaster ? 'none' : 'block';
+            document.getElementById('uamEditPermLabel').innerText = user.canEditAll ? 'Revoke Global Edit' : 'Grant Global Edit';
+
+            btn.classList.add('active-trigger');
+            menu.style.visibility = 'hidden'; menu.classList.add('show');
+
+            const btnRect = btn.getBoundingClientRect(); const menuRect = menu.getBoundingClientRect();
+            let top = btnRect.bottom + 6; let left = btnRect.right - menuRect.width;
+            if(top + menuRect.height > window.innerHeight - 12) top = btnRect.top - menuRect.height - 6;
+            if(left < 12) left = 12;
+            menu.style.top = top + 'px'; menu.style.left = left + 'px';
+            menu.style.visibility = 'visible';
+        };
+
+        window.closeUserActionMenu = () => {
+            document.getElementById('userActionMenu').classList.remove('show');
+            document.querySelectorAll('.action-btn.active-trigger').forEach(b => b.classList.remove('active-trigger'));
+            window.userActionMenuTarget = null;
+        };
+
+        window.runUserAction = (actionType) => {
+            const id = window.userActionMenuTarget;
+            window.closeUserActionMenu();
+            if(id) window.adminUserAction(id, actionType);
+        };
+
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('userActionMenu');
+            if(menu.classList.contains('show') && !menu.contains(e.target)) window.closeUserActionMenu();
+        });
+        document.addEventListener('keydown', (e) => { if(e.key === 'Escape') window.closeUserActionMenu(); });
+        document.querySelector('.content-area').addEventListener('scroll', () => window.closeUserActionMenu(), true);
+
+
         window.toggleAccounts = (needed) => {
             window.accountsNeeded = needed; document.getElementById('accountsWrapper').style.display = needed ? 'block' : 'none';
             if(!needed) { window.formAccounts = []; window.renderTags('accountList', 'formAccounts'); }
@@ -860,15 +937,29 @@
             window[arrayName].forEach((item, i) => { c.innerHTML += `<span class="tag-pill">${item} <button type="button" onclick="window.removeTag('${containerId}', ${i}, '${arrayName}')">×</button></span>`; });
         };
 
+        window.syncCustomFieldValues = () => {
+            // Capture whatever is currently typed in each field before we rebuild the list,
+            // otherwise adding/removing a field would wipe out values typed into the others.
+            window.customFieldsDefinition.forEach(cf => { const el = document.getElementById(cf.id); if(el) cf.value = el.value; });
+        };
+
         window.addCustomField = () => {
             const l = document.getElementById('customLabel').value.trim(); const t = document.getElementById('customType').value;
-            if(!l) return; window.customFieldsDefinition.push({ id: 'cf_' + Date.now(), label: l, type: t, value: '' });
+            if(!l) return;
+            window.syncCustomFieldValues();
+            window.customFieldsDefinition.push({ id: 'cf_' + Date.now(), label: l, type: t, value: '' });
             window.renderCustomFieldsForm(); document.getElementById('customLabel').value = '';
+        };
+
+        window.removeCustomField = (id) => {
+            window.syncCustomFieldValues();
+            window.customFieldsDefinition = window.customFieldsDefinition.filter(cf => cf.id !== id);
+            window.renderCustomFieldsForm();
         };
 
         window.renderCustomFieldsForm = () => {
             const c = document.getElementById('customFieldsContainer'); c.innerHTML = '';
-            window.customFieldsDefinition.forEach(cf => { c.innerHTML += `<div class="form-group"><label>${cf.label}</label><input type="${cf.type}" class="form-control" id="${cf.id}" value="${cf.value}" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>`; });
+            window.customFieldsDefinition.forEach(cf => { c.innerHTML += `<div class="form-group custom-field-group"><button type="button" class="remove-field-btn" title="Remove field" onclick="window.removeCustomField('${cf.id}')">×</button><label>${cf.label}</label><input type="${cf.type}" class="form-control" id="${cf.id}" value="${cf.value}" onkeydown="if(event.key === 'Enter') event.preventDefault();"></div>`; });
         };
 
         window.resetForm = () => {
