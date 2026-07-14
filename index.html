@@ -162,6 +162,15 @@
         .badge-master { background: #fef08a; color: #854d0e; }
         .badge-user { background: #e0e7ff; color: #4338ca; }
         .badge-edit { background: #dcfce7; color: #065f46; margin-left: 4px;}
+
+        /* REASSIGN OWNER MODAL */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 3000; align-items: center; justify-content: center; }
+        .modal-overlay.show { display: flex; }
+        .modal-card { background: var(--surface); width: 100%; max-width: 420px; border-radius: var(--radius-lg); box-shadow: var(--shadow-float); padding: 2.25rem; border: 1px solid rgba(226, 232, 240, 0.8); }
+        .modal-card h3 { font-size: 1.35rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.4rem; font-family: 'Outfit', sans-serif; letter-spacing: -0.02em; }
+        .modal-card p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5; }
+        .modal-card .form-group { margin-bottom: 1.75rem; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; }
     </style>
 </head>
 <body>
@@ -598,6 +607,21 @@
     </div>
 
     <div id="toast" class="toast">Operation Successful!</div>
+
+    <div id="reassignModal" class="modal-overlay">
+        <div class="modal-card">
+            <h3>Reassign Creator</h3>
+            <p>Correct the "Created By" attribution for <strong id="reassignCompanyName"></strong>. This updates the record only — it will not affect who can edit it.</p>
+            <div class="form-group">
+                <label>Assign To</label>
+                <select id="reassignSelect" class="form-control"></select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-outline" onclick="window.closeReassignModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="window.confirmReassignAuthor()">Save Change</button>
+            </div>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -1065,6 +1089,7 @@
                     const canEdit = window.currentUser.role === 'master' || window.currentUser.canEditAll || window.currentUser.email === item.authorEmail;
                     let acts = `<button class="btn btn-outline btn-sm" onclick="window.viewRecord('${item.id}')">View</button>`;
                     if(canEdit) acts += `<button class="btn btn-outline btn-sm" style="margin-left:8px;" onclick="window.loadEdit('${item.id}')">Edit</button><button class="btn btn-danger btn-sm" style="margin-left:8px;" onclick="window.deleteRecord('${item.id}', '${item.companyName}')">Delete</button>`;
+                    if(window.currentUser.role === 'master') acts += `<button class="btn btn-outline btn-sm" style="margin-left:8px;" onclick="window.openReassignModal('${item.id}')">Reassign</button>`;
                     tbody.innerHTML += `<tr><td style="font-weight: 700; color: var(--text-main); font-size:1.05rem;">${item.companyName}</td><td style="color:var(--text-muted)">${item.authorName}</td><td><span class="tag-pill" style="background:#f1f5f9; border:1px solid #cbd5e1; color:#475569;">${item.customerType || 'N/A'}</span></td><td style="text-align:center;">${acts}</td></tr>`;
                 });
             }
@@ -1075,6 +1100,47 @@
                 await saveVersionHistory(id);
                 await deleteDoc(doc(db, "checklists", id)); logAction('DELETE', `Deleted checklist for ${companyName}`); window.loadChecklists(); 
             } 
+        };
+
+        // --- REASSIGN CREATOR (fixes incorrect "Created By" attribution) ---
+        window.openReassignModal = async (id) => {
+            const item = window.checklists.find(c => c.id === id); if(!item) return;
+            window.reassignTargetId = id;
+            document.getElementById('reassignCompanyName').innerText = item.companyName;
+
+            if(!window.allUsers || window.allUsers.length === 0) {
+                try {
+                    const snapshot = await getDocs(collection(db, "users")); window.allUsers = [];
+                    snapshot.forEach(doc => window.allUsers.push({ id: doc.id, ...doc.data() }));
+                } catch(e) { alert("Could not load team members."); return; }
+            }
+
+            const select = document.getElementById('reassignSelect');
+            select.innerHTML = window.allUsers.map(u => 
+                `<option value="${u.email}" data-name="${u.name}" ${u.email === item.authorEmail ? 'selected' : ''}>${u.name}</option>`
+            ).join('');
+            document.getElementById('reassignModal').classList.add('show');
+        };
+
+        window.closeReassignModal = () => {
+            document.getElementById('reassignModal').classList.remove('show');
+            window.reassignTargetId = null;
+        };
+
+        window.confirmReassignAuthor = async () => {
+            const id = window.reassignTargetId; if(!id) return;
+            const select = document.getElementById('reassignSelect');
+            const chosen = select.options[select.selectedIndex]; if(!chosen) return;
+            const newEmail = chosen.value; const newName = chosen.dataset.name;
+            const item = window.checklists.find(c => c.id === id);
+
+            try {
+                await updateDoc(doc(db, "checklists", id), { authorEmail: newEmail, authorName: newName });
+                logAction('UPDATE', `Reassigned creator of ${item ? item.companyName : id} to ${newName}`);
+                window.showToast("Creator updated successfully!");
+                window.closeReassignModal();
+                window.loadChecklists();
+            } catch(e) { alert("Failed to reassign creator."); }
         };
 
         window.loadEdit = (id) => {
